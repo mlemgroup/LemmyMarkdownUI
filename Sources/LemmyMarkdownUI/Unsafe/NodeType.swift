@@ -27,9 +27,9 @@ internal enum NodeType: String {
     case link
     case image
     case spoiler
-    case superscript = "super"
-    case `subscript` = "sub"
-    case strikethrough = "strike"
+    case superscript
+    case `subscript`
+    case strikethrough
     case inlineAttributes = "attribute"
     case none = "NONE"
     case unknown = "<unknown>"

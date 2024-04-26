@@ -10,7 +10,7 @@ import cmark_lemmy
 
 public enum BlockNode: Hashable, Node {
     case blockquote(blocks: [BlockNode])
-    case spoiler(title: String?, blocks: [BlockNode])
+    // case spoiler(title: String?, blocks: [BlockNode])
     case bulletedList(isTight: Bool, items: [ListItemNode])
     case numberedList(isTight: Bool, start: Int, items: [ListItemNode])
     case codeBlock(fenceInfo: String?, content: String)
@@ -27,8 +27,8 @@ public enum BlockNode: Hashable, Node {
             return inlines
         case let .heading(_, inlines):
             return inlines
-        case let .spoiler(_, blocks: blocks):
-            return blocks
+//        case let .spoiler(_, blocks: blocks):
+//            return blocks
         case let .bulletedList(_, items: items):
             return items
         case let .numberedList(_, _, items: items):
@@ -40,8 +40,8 @@ public enum BlockNode: Hashable, Node {
     
     var searchChildrenForLinks: Bool {
         switch self {
-        case .spoiler:
-            false
+//        case .spoiler:
+//            false
         default:
             true
         }
@@ -85,11 +85,11 @@ internal extension BlockNode {
         //        columnAlignments: unsafeNode.tableAlignments,
         //        rows: unsafeNode.children.map(RawTableRow.init(unsafeNode:))
         //      )
-        case .spoiler:
-            self = .spoiler(
-                title: unsafeNode.title,
-                blocks: unsafeNode.children.compactMap(BlockNode.init(unsafeNode:))
-            )
+//        case .spoiler:
+//            self = .spoiler(
+//                title: unsafeNode.title,
+//                blocks: unsafeNode.children.compactMap(BlockNode.init(unsafeNode:))
+//            )
         case .thematicBreak:
             self = .thematicBreak
         default:

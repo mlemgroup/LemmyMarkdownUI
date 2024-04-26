@@ -47,13 +47,13 @@ public struct Markdown<ImageView: View>: View {
                         heading(level: level, inlines: inlines)
                     case let .blockquote(blocks: blocks):
                         blockQuote(blocks: blocks)
-                    case let .spoiler(title: title, blocks: blocks):
-                        SpoilerView(
-                            title: title,
-                            blocks: blocks,
-                            inlineImageLoader: inlineImageLoader,
-                            imageBlockView: imageBlockView
-                        )
+//                    case let .spoiler(title: title, blocks: blocks):
+//                        SpoilerView(
+//                            title: title,
+//                            blocks: blocks,
+//                            inlineImageLoader: inlineImageLoader,
+//                            imageBlockView: imageBlockView
+//                        )
                     case let .codeBlock(fenceInfo: _, content: content):
                         codeBlock(content: content)
                     case .thematicBreak:

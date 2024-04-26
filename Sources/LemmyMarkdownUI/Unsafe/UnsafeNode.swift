@@ -58,8 +58,21 @@ extension UnsafeNode {
 
 extension UnsafeNode {
     static func parseMarkdown(markdown: String) -> [BlockNode]? {
+        cmark_gfm_core_extensions_ensure_registered()
+        
         let parser = cmark_parser_new(CMARK_OPT_DEFAULT)
         defer { cmark_parser_free(parser) }
+        
+        let extensionNames: Set<String> = ["table", "mlem_inlines"]
+        
+        for extensionName in extensionNames {
+            guard let syntaxExtension = cmark_find_syntax_extension(extensionName) else {
+                print("SKIP EXTENSION", extensionName)
+                continue
+            }
+            print("LOAD EXTENSION", extensionName)
+            cmark_parser_attach_syntax_extension(parser, syntaxExtension)
+        }
         
         cmark_parser_feed(parser, markdown, markdown.utf8.count)
         guard let document = cmark_parser_finish(parser) else { return nil }
