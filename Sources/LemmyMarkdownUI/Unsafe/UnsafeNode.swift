@@ -43,6 +43,10 @@ extension UnsafeNode {
         cmark_node_get_title(self).map(String.init(cString:))
     }
     
+    var spoilerTitle: String? {
+        cmark_spoiler_get_title(self).map(String.init(cString:))
+    }
+    
     var listType: cmark_list_type {
         cmark_node_get_list_type(self)
     }
@@ -54,6 +58,19 @@ extension UnsafeNode {
     var isTightList: Bool {
         cmark_node_get_list_tight(self) != 0
     }
+    
+    var tableColumns: Int {
+      Int(cmark_gfm_extensions_get_table_columns(self))
+    }
+    
+    var tableAlignments: [RawTableColumnAlignment] {
+      (0..<self.tableColumns).map { column in
+        let ascii = cmark_gfm_extensions_get_table_alignments(self)[column]
+        let scalar = UnicodeScalar(ascii)
+        let character = Character(scalar)
+        return .init(rawValue: character) ?? .none
+      }
+    }
 }
 
 extension UnsafeNode {
@@ -63,14 +80,12 @@ extension UnsafeNode {
         let parser = cmark_parser_new(CMARK_OPT_DEFAULT)
         defer { cmark_parser_free(parser) }
         
-        let extensionNames: Set<String> = ["table", "mlem_inlines"]
+        let extensionNames: Set<String> = ["table", "mlem_inlines", "spoiler"]
         
         for extensionName in extensionNames {
             guard let syntaxExtension = cmark_find_syntax_extension(extensionName) else {
-                print("SKIP EXTENSION", extensionName)
                 continue
             }
-            print("LOAD EXTENSION", extensionName)
             cmark_parser_attach_syntax_extension(parser, syntaxExtension)
         }
         

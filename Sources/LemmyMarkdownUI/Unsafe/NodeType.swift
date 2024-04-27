@@ -26,11 +26,18 @@ internal enum NodeType: String {
     case strong
     case link
     case image
+    case inlineAttributes = "attribute"
+    case none = "NONE"
+    case unknown = "<unknown>"
+    
+    // Extensions
+    
     case spoiler
     case superscript
     case `subscript`
     case strikethrough
-    case inlineAttributes = "attribute"
-    case none = "NONE"
-    case unknown = "<unknown>"
+    case table
+    case tableHead = "table_header"
+    case tableRow = "table_row"
+    case tableCell = "table_cell"
 }

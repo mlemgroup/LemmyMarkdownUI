@@ -8,32 +8,27 @@
 import Foundation
 import SwiftUI
 
-public struct Markdown<ImageView: View>: View {
+public struct Markdown: View {
     
     var blocks: [BlockNode]
-    var inlineImageLoader: (InlineImage) async -> Void
-    @ViewBuilder var imageBlockView: (_ image: InlineImage) -> ImageView
+    var configuration: MarkdownConfiguration
     
     public init(
         _ markdown: String,
-        inlineImageLoader: @escaping (InlineImage) async -> Void,
-        @ViewBuilder imageBlockView: @escaping (_ image: InlineImage) -> ImageView
+        configuration: MarkdownConfiguration
     ) {
         self.init(
             .init(markdown),
-            inlineImageLoader: inlineImageLoader,
-            imageBlockView: imageBlockView
+            configuration: configuration
         )
     }
     
     public init(
         _ blocks: [BlockNode],
-        inlineImageLoader: @escaping (InlineImage) async -> Void,
-        @ViewBuilder imageBlockView: @escaping (_ image: InlineImage) -> ImageView
+        configuration: MarkdownConfiguration
     ) {
         self.blocks = blocks
-        self.inlineImageLoader = inlineImageLoader
-        self.imageBlockView = imageBlockView
+        self.configuration = configuration
     }
 
     public var body: some View {
@@ -47,13 +42,14 @@ public struct Markdown<ImageView: View>: View {
                         heading(level: level, inlines: inlines)
                     case let .blockquote(blocks: blocks):
                         blockQuote(blocks: blocks)
-//                    case let .spoiler(title: title, blocks: blocks):
-//                        SpoilerView(
-//                            title: title,
-//                            blocks: blocks,
-//                            inlineImageLoader: inlineImageLoader,
-//                            imageBlockView: imageBlockView
-//                        )
+                    case let .table(columnAlignments: columnAlignments, rows: rows):
+                        TableView(columnAlignments: columnAlignments, rows: rows, configuration: configuration)
+                    case let .spoiler(title: title, blocks: blocks):
+                        SpoilerView(
+                            title: title,
+                            blocks: blocks,
+                            configuration: configuration
+                        )
                     case let .codeBlock(fenceInfo: _, content: content):
                         codeBlock(content: content)
                     case .thematicBreak:
@@ -82,8 +78,7 @@ public struct Markdown<ImageView: View>: View {
     func inlineMarkdown(_ inlines: [InlineNode]) -> some View {
         InlineMarkdown(
             inlines,
-            inlineImageLoader: inlineImageLoader,
-            imageBlockView: imageBlockView
+            configuration: configuration
         )
     }
     
@@ -116,7 +111,7 @@ public struct Markdown<ImageView: View>: View {
     
     @ViewBuilder
     func blockQuote(blocks: [BlockNode]) -> some View {
-        Markdown(blocks, inlineImageLoader: inlineImageLoader, imageBlockView: imageBlockView)
+        Markdown(blocks, configuration: configuration)
             .padding(.leading, 15)
             .overlay(alignment: .leading) {
                 Capsule()
@@ -145,7 +140,7 @@ public struct Markdown<ImageView: View>: View {
                     Circle()
                         .fill(Color(uiColor: .tertiaryLabel))
                         .frame(width: 6, height: 6)
-                    Markdown(item.blocks, inlineImageLoader: inlineImageLoader, imageBlockView: imageBlockView)
+                    Markdown(item.blocks, configuration: configuration)
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -160,7 +155,7 @@ public struct Markdown<ImageView: View>: View {
                 HStack(alignment: .center, spacing: 7) {
                     Text("\(startIndex + index).")
                         .foregroundStyle(.secondary)
-                    Markdown(item.blocks, inlineImageLoader: inlineImageLoader, imageBlockView: imageBlockView)
+                    Markdown(item.blocks, configuration: configuration)
                 }
                 .frame(maxWidth: .infinity)
             }
