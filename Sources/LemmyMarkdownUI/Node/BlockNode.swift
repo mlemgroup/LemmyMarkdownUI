@@ -16,7 +16,7 @@ public enum BlockNode: Hashable, Node {
     case codeBlock(fenceInfo: String?, content: String)
     case paragraph(inlines: [InlineNode])
     case heading(level: Int, inlines: [InlineNode])
-    // case table(columnAlignments: [RawTableColumnAlignment], rows: [RawTableRow])
+    case table(columnAlignments: [RawTableColumnAlignment], rows: [TableRowNode])
     case thematicBreak
     
     internal var children: [any Node] {
@@ -80,14 +80,14 @@ internal extension BlockNode {
                 level: unsafeNode.headingLevel,
                 inlines: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:))
             )
-        //    case .table:
-        //      self = .table(
-        //        columnAlignments: unsafeNode.tableAlignments,
-        //        rows: unsafeNode.children.map(RawTableRow.init(unsafeNode:))
-        //      )
+            case .table:
+              self = .table(
+                columnAlignments: unsafeNode.tableAlignments,
+                rows: unsafeNode.children.map(TableRowNode.init(unsafeNode:))
+              )
         case .spoiler:
             self = .spoiler(
-                title: unsafeNode.title,
+                title: unsafeNode.spoilerTitle,
                 blocks: unsafeNode.children.compactMap(BlockNode.init(unsafeNode:))
             )
         case .thematicBreak:

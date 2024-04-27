@@ -8,32 +8,27 @@
 import Foundation
 import SwiftUI
 
-public struct InlineMarkdown<ImageView: View>: View {
+public struct InlineMarkdown: View {
     
     var renderer: InlineRenderer
-    var inlineImageLoader: (InlineImage) async -> Void
-    @ViewBuilder var imageBlockView: (_ image: InlineImage) -> ImageView
+    var configuration: MarkdownConfiguration
     
     public init(
         _ markdown: String,
-        inlineImageLoader: @escaping (InlineImage) async -> Void,
-        @ViewBuilder imageBlockView: @escaping (_ image: InlineImage) -> ImageView
+        configuration: MarkdownConfiguration
     ) {
         self.init(
             [InlineNode].init(markdown),
-            inlineImageLoader: inlineImageLoader,
-            imageBlockView: imageBlockView
+            configuration: configuration
         )
     }
     
     public init(
         _ inlines: [InlineNode],
-        inlineImageLoader: @escaping (InlineImage) async -> Void,
-        @ViewBuilder imageBlockView: @escaping (_ image: InlineImage) -> ImageView
+        configuration: MarkdownConfiguration
     ) {
         self.renderer = .init(inlines: inlines)
-        self.inlineImageLoader = inlineImageLoader
-        self.imageBlockView = imageBlockView
+        self.configuration = configuration
     }
     
     private func text(components: [InlineRenderer.Component]) -> some View {
@@ -59,11 +54,11 @@ public struct InlineMarkdown<ImageView: View>: View {
             text(components: components)
                 .task {
                     for image in images {
-                        await inlineImageLoader(image)
+                        await configuration.inlineImageLoader(image)
                     }
                 }
         case let .singleImage(image):
-            imageBlockView(image)
+            configuration.imageBlockView(image)
         default:
             Text("Error")
         }

@@ -8,19 +8,17 @@
 import Foundation
 import SwiftUI
 
-internal struct SpoilerView<ImageView: View>: View {
+internal struct SpoilerView: View {
     @State var isCollapsed: Bool = true
     
     let titleInlines: [InlineNode]
     let blocks: [BlockNode]
-    let inlineImageLoader: (InlineImage) async -> Void
-    @ViewBuilder var imageBlockView: (_ image: InlineImage) -> ImageView
+    let configuration: MarkdownConfiguration
     
     init(
         title: String?,
         blocks: [BlockNode],
-        inlineImageLoader: @escaping (InlineImage) async -> Void,
-        @ViewBuilder imageBlockView: @escaping (_ image: InlineImage) -> ImageView
+        configuration: MarkdownConfiguration
     ) {
         if let title {
             self.titleInlines = .init(title)
@@ -28,8 +26,7 @@ internal struct SpoilerView<ImageView: View>: View {
             self.titleInlines = [.text("Spoiler")]
         }
         self.blocks = blocks
-        self.inlineImageLoader = inlineImageLoader
-        self.imageBlockView = imageBlockView
+        self.configuration = configuration
     }
     
     var body: some View {
@@ -40,9 +37,7 @@ internal struct SpoilerView<ImageView: View>: View {
                     .rotationEffect(.degrees(isCollapsed ? 0 : 90))
                 InlineMarkdown(
                     titleInlines,
-                    inlineImageLoader:
-                        inlineImageLoader,
-                    imageBlockView: imageBlockView
+                    configuration: configuration
                 )
             }
             .fontWeight(.bold)
@@ -60,10 +55,9 @@ internal struct SpoilerView<ImageView: View>: View {
             if !isCollapsed {
                 Markdown(
                     blocks,
-                    inlineImageLoader: inlineImageLoader,
-                    imageBlockView: imageBlockView
+                    configuration: configuration
                 )
-                    .padding(10)
+                .padding(10)
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 12))
