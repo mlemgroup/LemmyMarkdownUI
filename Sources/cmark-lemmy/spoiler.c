@@ -40,21 +40,10 @@ static int matches(cmark_syntax_extension *self, cmark_parser *parser,
   int res = 0;
 
   bufsize_t matched = scan_close_spoiler_fence(input, len, parser->first_nonspace);
-  printf("MATCHED %d\n", matched);
 
   if (matched > 0) {
-    // closing fence
     cmark_parser_advance_offset(parser, input, matched, false);
   } else {
-    // // skip opt. spaces of fence parser->offset
-    // int i = 1;
-
-    // while (i > 0 && S_is_space_or_tab(peek_at(input, parser->offset))) {
-    //   cmark_parser_advance_offset(parser, input, 1, true);
-    //   i--;
-    // }
-    // cmark_parser_advance_offset(parser, input,
-    //                               len - cmark_parser_get_offset(parser), 0);
     res = true;
   }
 
@@ -67,12 +56,11 @@ static cmark_node *try_opening_spoiler_block(cmark_syntax_extension *self,
                                            unsigned char *input, int len) {
   cmark_node_type parent_type = cmark_node_get_type(parent_container);
 
-  printf("TOP %s\n", input);
   bufsize_t matched = 0;
 
     if (!indented && parent_type != CMARK_NODE_SPOILER) {
-    matched = scan_open_spoiler_fence(
-        input, len, cmark_parser_get_first_nonspace(parser));
+      matched = scan_open_spoiler_fence(
+          input, len, cmark_parser_get_first_nonspace(parser));
     }
     if (matched == 0) {
       return NULL;

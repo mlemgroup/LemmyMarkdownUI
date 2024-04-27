@@ -80,7 +80,7 @@ extension UnsafeNode {
         let parser = cmark_parser_new(CMARK_OPT_DEFAULT)
         defer { cmark_parser_free(parser) }
         
-        let extensionNames: Set<String> = ["table", "mlem_inlines", "spoiler"]
+        let extensionNames: [String] = ["mlem_inlines", "spoiler", "table"]
         
         for extensionName in extensionNames {
             guard let syntaxExtension = cmark_find_syntax_extension(extensionName) else {
