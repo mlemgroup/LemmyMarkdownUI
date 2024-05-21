@@ -341,6 +341,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     bool is_xmpp = false;
     bool mlem_comm = false;
     bool mlem_user = false;
+    int mlem_prefix_len = 1;
     size_t rewind;
     size_t max_rewind;
     size_t np = 0;
@@ -358,7 +359,9 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
 
 found_at:
     printf("START FOUND_AT\n");
-    for (rewind = 0; rewind < max_rewind; ++rewind) {
+
+    // Rewind from the '@' position to the 
+    for (rewind = 0; rewind <= max_rewind; ++rewind) {
       uint8_t c = data[start + offset + max_rewind - rewind - 1];
 
       printf("CHAR '%c'\n", c);
@@ -385,7 +388,18 @@ found_at:
       if (strchr("@", c) != NULL) {
         if (auto_mailto) {
           auto_mailto = false;
-          continue;
+          mlem_user = true;
+          rewind++;
+          break;
+        }
+      }
+
+      if (strchr("!", c) != NULL) {
+        if (auto_mailto) {
+          auto_mailto = false;
+          mlem_comm = true;
+          rewind++;
+          break;
         }
       }
 
@@ -398,6 +412,8 @@ found_at:
     }
 
     // assert(data[start + offset + max_rewind] == '@');
+      
+    // Find end of link
     for (link_end = 1; link_end < remaining - offset - max_rewind; ++link_end) {
       uint8_t c = data[start + offset + max_rewind + link_end];
 
@@ -437,9 +453,18 @@ found_at:
     cmark_node *link_node = cmark_node_new_with_mem(CMARK_NODE_LINK, parser->mem);
     cmark_strbuf buf;
     cmark_strbuf_init(parser->mem, &buf, 10);
-    if (auto_mailto)
-      cmark_strbuf_puts(&buf, "mailto:");
-    cmark_strbuf_put(&buf, data + start + offset + max_rewind - rewind, (bufsize_t)(link_end + rewind));
+    if (mlem_comm || mlem_user) {
+      cmark_strbuf_puts(&buf, "https://");
+      cmark_strbuf_put(&buf, at, (bufsize_t)(link_end));
+      cmark_strbuf_puts(&buf, mlem_comm ? "/c/" : "/u/");
+      unsigned char *start_pos = data + start + offset + max_rewind - rewind + mlem_prefix_len;
+      cmark_strbuf_put(&buf, start_pos, (bufsize_t)(at - start_pos));
+    } else {
+      if (auto_mailto)
+        cmark_strbuf_puts(&buf, "mailto:");  
+
+      cmark_strbuf_put(&buf, data + start + offset + max_rewind - rewind, (bufsize_t)(link_end + rewind));
+    }
     link_node->as.link.url = cmark_chunk_buf_detach(&buf);
 
     cmark_node *link_text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
