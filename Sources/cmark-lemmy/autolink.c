@@ -430,7 +430,7 @@ found_at:
     printf("TEST1\n");
     if (rewind == 0) {
       printf("REWIND CONT\n");
-      offset += max_rewind + 1;
+      offset += max_rewind;
       continue;
     }
 
