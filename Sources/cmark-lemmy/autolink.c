@@ -341,7 +341,7 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     bool is_xmpp = false;
     bool mlem_comm = false;
     bool mlem_user = false;
-    int mlem_prefix_len = 1;
+    int mlem_prefix_len = 0;
     size_t rewind;
     size_t max_rewind;
     size_t np = 0;
@@ -389,7 +389,7 @@ found_at:
         if (auto_mailto) {
           auto_mailto = false;
           mlem_user = true;
-          rewind++;
+          mlem_prefix_len = 1;
           break;
         }
       }
@@ -398,13 +398,36 @@ found_at:
         if (auto_mailto) {
           auto_mailto = false;
           mlem_comm = true;
-          rewind++;
+          mlem_prefix_len = 1;
+          break;
+        }
+      }
+
+      if (strchr("/", c) != NULL) {
+        if (auto_mailto) {
+          if (strchr("/", data[start + offset + max_rewind - rewind - 3])) {
+              uint8_t midc = data[start + offset + max_rewind - rewind - 2];
+              if (strchr("c", midc) != NULL) {
+                auto_mailto = false;
+                mlem_comm = true;
+                mlem_prefix_len = 3;
+                break;
+              }
+              if (strchr("u", midc) != NULL) {
+                auto_mailto = false;
+                mlem_user = true;
+                mlem_prefix_len = 3;
+                break;
+              }
+          }
           break;
         }
       }
 
       break;
     }
+
+    rewind += mlem_prefix_len;
 
     if (rewind == 0) {
       offset += max_rewind + 1;
@@ -421,7 +444,6 @@ found_at:
         continue;
 
       if (c == '@') {
-        printf("FOUND '@' at pos %d\n", offset);
         // Found another '@', so go back and try again with an updated offset and max_rewind.
         offset += max_rewind + 1;
         max_rewind = link_end - 1;

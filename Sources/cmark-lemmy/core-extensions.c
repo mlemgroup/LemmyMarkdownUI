@@ -1,6 +1,5 @@
 #include "cmark-gfm-core-extensions.h"
 #include "mlem_inlines.h"
-#include "mlem_links.h"
 #include "autolink.h"
 #include "table.h"
 #include "spoiler.h"
@@ -11,7 +10,6 @@ static int core_extensions_registration(cmark_plugin *plugin) {
   cmark_plugin_register_syntax_extension(plugin, create_table_extension());
   cmark_plugin_register_syntax_extension(plugin, create_autolink_extension());
   cmark_plugin_register_syntax_extension(plugin, create_mlem_inlines_extension());
-  cmark_plugin_register_syntax_extension(plugin, create_mlem_links_extension());
   cmark_plugin_register_syntax_extension(plugin, create_spoiler_extension()); 
   return 1;
 }

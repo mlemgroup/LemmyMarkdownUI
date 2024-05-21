@@ -47,22 +47,6 @@ extension UnsafeNode {
         cmark_spoiler_get_title(self).map(String.init(cString:))
     }
     
-    var lemmyLinkContent: String? {
-        cmark_lemmy_link_get_content(self).map(String.init(cString:))
-    }
-    
-    var lemmyLinkName: String? {
-        cmark_lemmy_link_get_name(self).map(String.init(cString:))
-    }
-    
-    var lemmyLinkDomain: String? {
-        cmark_lemmy_link_get_domain(self).map(String.init(cString:))
-    }
-    
-    var lemmyLinkIsCommunity: Bool {
-        cmark_lemmy_link_get_is_community(self) != 0
-    }
-    
     var listType: cmark_list_type {
         cmark_node_get_list_type(self)
     }
