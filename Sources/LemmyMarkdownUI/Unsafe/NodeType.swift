@@ -36,6 +36,7 @@ internal enum NodeType: String {
     case superscript
     case `subscript`
     case strikethrough
+    case lemmyLink = "lemmy_link"
     case table
     case tableHead = "table_header"
     case tableRow = "table_row"

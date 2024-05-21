@@ -15,34 +15,38 @@ public struct TableView: View {
     let borderWidth: CGFloat = 1
     
     public var body: some View {
-        Grid(horizontalSpacing: borderWidth, verticalSpacing: borderWidth) {
-          ForEach(0..<self.rowCount, id: \.self) { row in
-            GridRow {
-              ForEach(0..<self.columnCount, id: \.self) { column in
-                  InlineMarkdown(self.rows[row].cells[column].content, configuration: configuration)
-                      .padding(.horizontal, 10)
-                      .padding(.vertical, 2)
-                      .gridColumnAlignment(.init(self.columnAlignments[column]))
-                      .anchorPreference(key: TableCellBoundsPreference.self, value: .bounds) { anchor in
-                        [TableCellIndex(row: row, column: column): anchor]
-                      }
-              }
+        ScrollView(.horizontal) {
+            Grid(horizontalSpacing: borderWidth, verticalSpacing: borderWidth) {
+                ForEach(0..<self.rowCount, id: \.self) { row in
+                    GridRow {
+                        ForEach(0..<self.columnCount, id: \.self) { column in
+                            InlineMarkdown(self.rows[row].cells[column].content, configuration: configuration)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 2)
+                                .gridColumnAlignment(.init(self.columnAlignments[column]))
+                                .anchorPreference(key: TableCellBoundsPreference.self, value: .bounds) { anchor in
+                                    [TableCellIndex(row: row, column: column): anchor]
+                                }
+                        }
+                    }
+                }
             }
-          }
+            .padding(borderWidth)
+            .backgroundPreferenceValue(TableCellBoundsPreference.self) { anchors in
+                GeometryReader { proxy in
+                    backgroundView(
+                        tableBounds: .init(
+                            rowCount: rowCount,
+                            columnCount: columnCount,
+                            anchors: anchors,
+                            proxy: proxy
+                        )
+                    )
+                }
+            }
         }
-        .padding(borderWidth)
-        .backgroundPreferenceValue(TableCellBoundsPreference.self) { anchors in
-          GeometryReader { proxy in
-            backgroundView(
-                tableBounds: .init(
-                rowCount: rowCount,
-                columnCount: columnCount,
-                anchors: anchors,
-                proxy: proxy
-              )
-            )
-          }
-        }
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
     }
     
     @ViewBuilder

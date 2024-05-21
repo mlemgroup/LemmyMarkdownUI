@@ -41,6 +41,9 @@ internal extension InlineNode {
             attributes.strikethroughStyle = .single
         case let .link(destination: url, children: _):
             attributes.link = URL(string: url)
+        case let .lemmyLink(type: type, content: _, name: name, domain: domain):
+            let url = URL(string: "https://\(domain)/\(type.urlIdentifier)/\(name)")
+            attributes.link = url
         default:
             break
         }
