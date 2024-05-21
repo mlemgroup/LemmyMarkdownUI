@@ -330,9 +330,11 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
   text->as.literal = cmark_chunk_dup(&detached_chunk, 0, detached_chunk.len);
 
   uint8_t *data = text->as.literal.data;
+  printf("POSTPROC %s\n", data);
   size_t remaining = text->as.literal.len;
 
   while (true) {
+    printf("START LOOP start=%d, remaining=%d, offset=%d\n", start, remaining, offset);
     size_t link_end;
     uint8_t *at;
     bool auto_mailto = true;
@@ -350,13 +352,19 @@ static void postprocess_text(cmark_parser *parser, cmark_node *text) {
     at = (uint8_t *)memchr(data + start + offset + 1, '@', remaining - offset - 1);
     if (!at)
       break;
+
+    printf("AT %ld\n", at - data);
       
     max_rewind = at - (data + start + offset);
 
 found_at:
+    printf("START FOUND_AT\n");
+
     // Rewind from the '@' position to the 
     for (rewind = 0; rewind < max_rewind; ++rewind) {
       uint8_t c = data[start + offset + max_rewind - rewind - 1];
+
+      printf("CHAR '%c'\n", c);
 
       if (cmark_isalnum(c))
         continue;
@@ -419,7 +427,9 @@ found_at:
       break;
     }
 
+    printf("TEST1\n");
     if (rewind == 0) {
+      printf("REWIND CONT\n");
       offset += max_rewind + 1;
       continue;
     }
@@ -428,6 +438,7 @@ found_at:
 
     // assert(data[start + offset + max_rewind] == '@');
       
+    printf("TEST2\n");
     // Find end of link
     for (link_end = 1; link_end < remaining - offset - max_rewind; ++link_end) {
       uint8_t c = data[start + offset + max_rewind + link_end];
@@ -436,6 +447,7 @@ found_at:
         continue;
 
       if (c == '@') {
+        printf("FOUND '@' at pos %d\n", offset);
         // Found another '@', so go back and try again with an updated offset and max_rewind.
         offset += max_rewind + 1;
         max_rewind = link_end - 1;
@@ -453,14 +465,19 @@ found_at:
         (!cmark_isalpha(data[start + offset + max_rewind + link_end - 1]) &&
          data[start + offset + max_rewind + link_end - 1] != '.')) {
       offset += max_rewind + link_end;
+      printf("CONT 1\n");
       continue;
     }
+    printf("TEST3\n");
     link_end = autolink_delim(data + start + offset + max_rewind, link_end);
 
     if (link_end == 0) {
       offset += max_rewind + 1;
+      printf("RELOOP\n");
       continue;
     }
+
+    printf("TEST4\n");
 
     cmark_node *link_node = cmark_node_new_with_mem(CMARK_NODE_LINK, parser->mem);
     cmark_strbuf buf;
@@ -478,6 +495,7 @@ found_at:
       cmark_strbuf_put(&buf, data + start + offset + max_rewind - rewind, (bufsize_t)(link_end + rewind));
     }
     link_node->as.link.url = cmark_chunk_buf_detach(&buf);
+    printf("TEST5\n");
     cmark_node *link_text = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
     cmark_chunk email = cmark_chunk_dup(
       &detached_chunk,
