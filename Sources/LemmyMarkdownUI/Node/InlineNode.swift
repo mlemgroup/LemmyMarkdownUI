@@ -17,7 +17,6 @@ public enum InlineNode: Hashable, Node {
     case superscript(children: [InlineNode])
     case `subscript`(children: [InlineNode])
     case strikethrough(children: [InlineNode])
-    case lemmyLink(type: LemmyLinkType, content: String, name: String, domain: String)
     case link(destination: String, children: [InlineNode])
     case image(source: String, children: [InlineNode])
     
@@ -54,8 +53,6 @@ public enum InlineNode: Hashable, Node {
             return " "
         case .lineBreak:
             return "\n"
-        case let .lemmyLink(type: _, content: content, name: _, domain: _):
-            return content
         default:
             return nil
         }
@@ -95,13 +92,6 @@ internal extension InlineNode {
             self = .image(
                 source: unsafeNode.url ?? "",
                 children: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:))
-            )
-        case .lemmyLink:
-            self = .lemmyLink(
-                type: unsafeNode.lemmyLinkIsCommunity ? .community : .person,
-                content: unsafeNode.lemmyLinkContent ?? "",
-                name: unsafeNode.lemmyLinkName ?? "",
-                domain: unsafeNode.lemmyLinkDomain ?? ""
             )
         default:
             assertionFailure("Unhandled node type '\(unsafeNode.nodeType)' in InlineNode.")
