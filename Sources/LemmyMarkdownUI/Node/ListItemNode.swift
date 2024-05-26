@@ -13,6 +13,7 @@ public struct ListItemNode: Hashable, Node {
     let blocks: [BlockNode]
     
     var children: [Node] { blocks }
+    public var links: [LinkData] { children.links }
 }
 
 internal extension ListItemNode {

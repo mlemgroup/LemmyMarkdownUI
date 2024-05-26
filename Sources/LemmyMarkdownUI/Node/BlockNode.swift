@@ -38,13 +38,24 @@ public enum BlockNode: Hashable, Node {
         }
     }
     
-    var searchChildrenForLinks: Bool {
+    internal var searchChildrenForLinks: Bool {
         switch self {
         case .spoiler:
             false
         default:
             true
         }
+    }
+    
+    public var links: [LinkData] {
+        if case .spoiler = self {
+            return children.links.map {
+                var new = $0
+                new.insideSpoiler = true
+                return new
+            }
+        }
+        return children.links
     }
 }
 
