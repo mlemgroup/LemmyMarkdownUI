@@ -13,6 +13,7 @@ public struct TableRowNode: Hashable, Node {
     var children: [any Node] { cells }
     
     var searchChildrenForLinks: Bool { true }
+    public var links: [LinkData] { children.links }
 }
 
 internal extension TableRowNode {

@@ -22,7 +22,7 @@ public enum InlineNode: Hashable, Node {
     
     internal var children: [any Node] { inlineChildren }
     
-    var inlineChildren: [InlineNode] {
+    internal var inlineChildren: [InlineNode] {
         switch self {
         case let .emphasis(children):
             return children
@@ -43,7 +43,7 @@ public enum InlineNode: Hashable, Node {
         }
     }
     
-    var string: String? {
+    internal var string: String? {
         switch self {
         case let .text(string):
             return string
@@ -58,7 +58,25 @@ public enum InlineNode: Hashable, Node {
         }
     }
     
-    var searchChildrenForLinks: Bool { true }
+    public var links: [LinkData] {
+        var ret: [LinkData] = .init()
+        if case let InlineNode.link(destination: destination, children: children) = self {
+            if let url = URL(string: destination) {
+                ret.append(.init(title: children, url: url))
+            }
+        }
+        if self.searchChildrenForLinks {
+            ret += self.inlineChildren.links
+        }
+        return ret
+    }
+    
+    public var stringLiteral: String {
+        if let string { return string }
+        return inlineChildren.stringLiteral
+    }
+    
+    internal var searchChildrenForLinks: Bool { true }
 }
 
 internal extension InlineNode {

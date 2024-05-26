@@ -12,4 +12,12 @@ public extension [InlineNode] {
         let blocks: [BlockNode] = .init(markdown)
         self.init((blocks.first?.children as? [InlineNode]) ?? [])
     }
+    
+    var links: [LinkData] {
+        self.reduce([], { $0 + $1.links })
+    }
+    
+    var stringLiteral: String {
+        self.reduce("", { $0 + $1.stringLiteral })
+    }
 }
