@@ -467,7 +467,7 @@ found_at:
     cmark_strbuf_init(parser->mem, &buf, 10);
     if (mlem_comm || mlem_user) {
       cmark_strbuf_puts(&buf, "https://");
-      cmark_strbuf_put(&buf, at, (bufsize_t)(link_end));
+      cmark_strbuf_put(&buf, at+1, (bufsize_t)(link_end-1));
       cmark_strbuf_puts(&buf, mlem_comm ? "/c/" : "/u/");
       unsigned char *start_pos = data + start + offset + max_rewind - rewind + mlem_prefix_len;
       cmark_strbuf_put(&buf, start_pos, (bufsize_t)(at - start_pos));
