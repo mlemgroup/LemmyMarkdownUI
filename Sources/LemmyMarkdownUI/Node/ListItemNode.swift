@@ -23,4 +23,21 @@ internal extension ListItemNode {
         }
         self.init(blocks: unsafeNode.children.compactMap(BlockNode.init(unsafeNode:)))
     }
+    
+    func truncate(remainingLines: inout Int, charactersPerLine: Int) -> ListItemNode {
+        return .init(blocks: blocks.truncate(remainingLines: &remainingLines, charactersPerLine: charactersPerLine))
+    }
+}
+
+internal extension [ListItemNode] {
+    func truncate(remainingLines: inout Int, charactersPerLine: Int) -> [ListItemNode] {
+        var ret: [ListItemNode] = .init()
+        for node in self {
+            if remainingLines <= 0 {
+                break
+            }
+            ret.append(node.truncate(remainingLines: &remainingLines, charactersPerLine: charactersPerLine))
+        }
+        return ret
+    }
 }

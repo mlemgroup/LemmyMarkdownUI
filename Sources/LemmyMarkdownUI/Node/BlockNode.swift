@@ -57,6 +57,48 @@ public enum BlockNode: Hashable, Node {
         }
         return children.links
     }
+    
+    internal func truncate(remainingLines: inout Int, charactersPerLine: Int) -> BlockNode {
+        switch self {
+        case let .blockquote(blocks):
+            return .blockquote(
+                blocks: blocks.truncate(remainingLines: &remainingLines, charactersPerLine: charactersPerLine)
+            )
+        case let .spoiler(title, blocks):
+            remainingLines -= 1
+            return .spoiler(title: title, blocks: blocks)
+        case let .bulletedList(isTight, items):
+            return .bulletedList(
+                isTight: isTight,
+                items: items.truncate(remainingLines: &remainingLines, charactersPerLine: charactersPerLine)
+            )
+        case let .numberedList(isTight, start, items):
+            return .numberedList(
+                isTight: isTight,
+                start: start,
+                items: items.truncate(remainingLines: &remainingLines, charactersPerLine: charactersPerLine)
+            )
+        case let .codeBlock(fenceInfo, content):
+            let lines = content.split(separator: "\n").prefix(remainingLines)
+            remainingLines -= lines.count
+            return .codeBlock(fenceInfo: fenceInfo, content: lines.joined(separator: "\n"))
+        case let .paragraph(inlines):
+            return .paragraph(
+                inlines: inlines.truncate(remainingLines: &remainingLines, charactersPerLine: charactersPerLine)
+            )
+        case let .heading(level, inlines):
+            return .heading(
+                level: level,
+                inlines: inlines.truncate(remainingLines: &remainingLines, charactersPerLine: charactersPerLine)
+            )
+        case let .table(columnAlignments, rows):
+            let rows = rows.prefix(remainingLines)
+            remainingLines -= rows.count
+            return .table(columnAlignments: columnAlignments, rows: Array(rows))
+        case .thematicBreak:
+            return .thematicBreak
+        }
+    }
 }
 
 internal extension BlockNode {

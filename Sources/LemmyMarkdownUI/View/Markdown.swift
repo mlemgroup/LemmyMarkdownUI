@@ -136,10 +136,12 @@ public struct Markdown: View {
     func bulletedList(items: [ListItemNode]) -> some View {
         VStack(spacing: 3) {
             ForEach(Array(items.enumerated()), id: \.offset) { _, item in
-                HStack(alignment: .center, spacing: 8) {
-                    Circle()
-                        .fill(Color(uiColor: .tertiaryLabel))
-                        .frame(width: 6, height: 6)
+                HStack(alignment: .top, spacing: 8) {
+                    Text(" ")
+                        .overlay {
+                            Circle()
+                                .fill(Color(uiColor: .tertiaryLabel))
+                        }
                     Markdown(item.blocks, configuration: configuration)
                 }
                 .frame(maxWidth: .infinity)
@@ -152,7 +154,7 @@ public struct Markdown: View {
     func numberedList(items: [ListItemNode], startIndex: Int = 1) -> some View {
         VStack(spacing: 3) {
             ForEach(Array(items.enumerated()), id: \.offset) { index, item in
-                HStack(alignment: .center, spacing: 7) {
+                HStack(alignment: .top, spacing: 7) {
                     Text("\(startIndex + index).")
                         .foregroundStyle(.secondary)
                     Markdown(item.blocks, configuration: configuration)
