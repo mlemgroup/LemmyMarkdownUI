@@ -16,13 +16,18 @@ public extension [BlockNode] {
         self.reduce([], { $0 + $1.links })
     }
     
-    internal func truncate(remainingLines: inout Int, charactersPerLine: Int) -> [BlockNode] {
+    internal func truncate(data: TruncationData) -> [BlockNode] {
         var ret: [BlockNode] = .init()
         for node in self {
-            if remainingLines <= 0 {
+            if data.linesRemaining <= 0 {
                 break
             }
-            ret.append(node.truncate(remainingLines: &remainingLines, charactersPerLine: charactersPerLine))
+            if let output = node.truncate(data: data) {
+                ret.append(output)
+            } else {
+                data.linesRemaining = 0
+                break
+            }
         }
         switch ret.last {
         case .thematicBreak:
@@ -38,7 +43,11 @@ public extension [BlockNode] {
     }
     
     func truncate(lineCount: Int, charactersPerLine: Int) -> [BlockNode] {
-        var lineCount = lineCount
-        return truncate(remainingLines: &lineCount, charactersPerLine: charactersPerLine)
+        let data: TruncationData = .init(linesRemaining: lineCount, charactersPerLine: charactersPerLine)
+        let output = truncate(data: data)
+        if data.linesRemaining <= 0, output.count != self.count, !data.hasInsertedTerminator {
+            return output + [.truncationTerminator]
+        }
+        return output
     }
 }

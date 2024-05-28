@@ -9,7 +9,10 @@ import Foundation
 import SwiftUI
 
 internal extension InlineNode {
-    func applyAttributes(_ attributes: AttributeContainer) -> AttributeContainer {
+    func applyAttributes(
+        _ attributes: AttributeContainer,
+        configuration: MarkdownConfiguration
+    ) -> AttributeContainer {
         let font: UIFont = (attributes.uiKit.font) ?? .preferredFont(forTextStyle: .body)
         var attributes = attributes
         switch self {
@@ -29,7 +32,7 @@ internal extension InlineNode {
             )
         case .code:
             attributes.uiKit.font = UIFont.monospacedSystemFont(ofSize: font.pointSize, weight: .regular)
-            attributes.uiKit.backgroundColor = UIColor.secondarySystemBackground
+            attributes.backgroundColor = configuration.codeBackgroundColor
         case .superscript:
             let size = UIFont.bodyPointSize / 2
             attributes.uiKit.font = font.withSize(size)
@@ -41,6 +44,8 @@ internal extension InlineNode {
             attributes.strikethroughStyle = .single
         case let .link(destination: url, children: _):
             attributes.link = URL(string: url)
+        case .truncationTerminator:
+            attributes.foregroundColor = configuration.secondaryColor
         default:
             break
         }

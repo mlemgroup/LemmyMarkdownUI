@@ -27,7 +27,7 @@ public struct InlineMarkdown: View {
         _ inlines: [InlineNode],
         configuration: MarkdownConfiguration
     ) {
-        self.renderer = .init(inlines: inlines)
+        self.renderer = .init(inlines: inlines, configuration: configuration)
         self.configuration = configuration
     }
     
