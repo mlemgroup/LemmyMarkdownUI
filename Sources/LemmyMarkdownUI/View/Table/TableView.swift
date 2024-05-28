@@ -14,6 +14,8 @@ public struct TableView: View {
     
     let borderWidth: CGFloat = 1
     
+    @State private var scrollViewContentSize: CGSize = .zero
+    
     public var body: some View {
         ScrollView(.horizontal) {
             Grid(horizontalSpacing: borderWidth, verticalSpacing: borderWidth) {
@@ -44,9 +46,22 @@ public struct TableView: View {
                     )
                 }
             }
+            .background(
+                GeometryReader { geo in
+                    geometryReaderBackground(geoSize: geo.size)
+                }
+            )
         }
+        .frame(maxWidth: scrollViewContentSize.width)
         .scrollIndicators(.hidden)
         .scrollBounceBehavior(.basedOnSize)
+    }
+    
+    func geometryReaderBackground(geoSize: CGSize) -> some View {
+        Task { @MainActor in
+            scrollViewContentSize = geoSize
+        }
+        return Color.clear
     }
     
     @ViewBuilder

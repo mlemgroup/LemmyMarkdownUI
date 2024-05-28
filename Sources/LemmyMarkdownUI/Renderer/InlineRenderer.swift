@@ -29,8 +29,8 @@ internal class InlineRenderer {
     private var images: [InlineImage] = .init()
     private var currentText: AttributedString = .init()
     
-    init(inlines: [InlineNode]) {
-        renderInlines(inlines: inlines)
+    init(inlines: [InlineNode], configuration: MarkdownConfiguration) {
+        renderInlines(inlines: inlines, configuration: configuration)
         components.append(.text(currentText))
         if images.count == 1, let image = images.first {
             var isSingleImage = true
@@ -55,21 +55,26 @@ internal class InlineRenderer {
     
     private func renderInlines(
         inlines: [InlineNode],
-        attributes: AttributeContainer = .init()
+        attributes: AttributeContainer = .init(),
+        configuration: MarkdownConfiguration
     ) {
         for node in inlines {
             if let string = node.string {
                 // swiftlint:disable:next shorthand_operator
-                currentText = currentText + AttributedString(string, attributes: node.applyAttributes(attributes))
+                currentText = currentText + AttributedString(
+                    string,
+                    attributes: node.applyAttributes(attributes, configuration: configuration)
+                )
             } else {
                 switch node {
-                case let .image(source: source, children: _):
+                case let .image(source: source, children: _, truncated):
                     if let url = URL(string: source) {
                         components.append(.text(currentText))
                         currentText = .init()
                         let attatchment = InlineImage(
                             url: url,
-                            fontSize: attributes.uiKit.font?.pointSize ?? UIFont.bodyPointSize
+                            fontSize: attributes.uiKit.font?.pointSize ?? UIFont.bodyPointSize,
+                            truncated: truncated
                         )
                         images.append(attatchment)
                         components.append(.image(attatchment))
@@ -77,7 +82,8 @@ internal class InlineRenderer {
                 default:
                     renderInlines(
                         inlines: node.inlineChildren,
-                        attributes: node.applyAttributes(attributes)
+                        attributes: node.applyAttributes(attributes, configuration: configuration),
+                        configuration: configuration
                     )
                 }
             }

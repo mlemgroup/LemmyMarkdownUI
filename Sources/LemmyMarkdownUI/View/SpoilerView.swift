@@ -30,6 +30,21 @@ internal struct SpoilerView: View {
     }
     
     var body: some View {
+        if configuration.stubSpoilers {
+            HStack {
+                Image(systemName: configuration.spoilerStubIcon)
+                InlineMarkdown(
+                    titleInlines,
+                    configuration: configuration
+                )
+            }
+            .foregroundStyle(configuration.secondaryColor)
+        } else {
+            content
+        }
+    }
+    
+    var content: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
                 Image(systemName: "chevron.right")
@@ -41,11 +56,11 @@ internal struct SpoilerView: View {
                 )
             }
             .fontWeight(.bold)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(configuration.secondaryColor)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 10)
             .padding(.horizontal, 12)
-            .background(Color(uiColor: .secondarySystemBackground))
+            .background(configuration.spoilerHeaderBackgroundColor)
             .onTapGesture {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     isCollapsed.toggle()
@@ -63,7 +78,7 @@ internal struct SpoilerView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(uiColor: .tertiaryLabel), lineWidth: 1)
+                .stroke(configuration.spoilerOutlineColor, lineWidth: 1)
         )
     }
 }

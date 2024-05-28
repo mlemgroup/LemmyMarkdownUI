@@ -9,7 +9,6 @@ import Foundation
 import SwiftUI
 
 public struct Markdown: View {
-    
     var blocks: [BlockNode]
     var configuration: MarkdownConfiguration
     
@@ -42,36 +41,56 @@ public struct Markdown: View {
                         heading(level: level, inlines: inlines)
                     case let .blockquote(blocks: blocks):
                         blockQuote(blocks: blocks)
-                    case let .table(columnAlignments: columnAlignments, rows: rows):
-                        TableView(columnAlignments: columnAlignments, rows: rows, configuration: configuration)
+                    case let .table(columnAlignments: columnAlignments, rows: rows, truncatedRows: truncatedRows):
+                        if truncatedRows == 0 {
+                            TableView(columnAlignments: columnAlignments, rows: rows, configuration: configuration)
+                        } else {
+                            TableView(columnAlignments: columnAlignments, rows: rows, configuration: configuration)
+                                .mask(fadeGradient)
+                        }
                     case let .spoiler(title: title, blocks: blocks):
                         SpoilerView(
                             title: title,
                             blocks: blocks,
                             configuration: configuration
                         )
-                    case let .codeBlock(fenceInfo: _, content: content):
-                        codeBlock(content: content)
+                    case let .codeBlock(fenceInfo: _, content: content, truncatedRows: truncatedRows):
+                        if truncatedRows == 0 {
+                            codeBlock(content: content)
+                        } else {
+                            codeBlock(content: content)
+                                .mask(fadeGradient)
+                        }
                     case .thematicBreak:
                         Rectangle()
                             .fill(Color(uiColor: .secondarySystemBackground))
                             .frame(height: 3)
                             .frame(maxWidth: .infinity)
-                    case let .bulletedList(isTight: _, items: items):
-                        bulletedList(items: items)
-                    case let .numberedList(isTight: _, start: start, items: items):
-                        numberedList(items: items, startIndex: start)
+                    case let .bulletedList(isTight: _, items: items, truncatedRows: truncatedRows):
+                        bulletedList(items: items, truncatedRows: truncatedRows)
+                    case let .numberedList(isTight: _, start: start, items: items, truncatedRows: truncatedRows):
+                        numberedList(items: items, startIndex: start, truncatedRows: truncatedRows)
+                    case .truncationTerminator:
+                        if let truncationTerminatorText = configuration.truncationTerminatorText {
+                            Text(truncationTerminatorText)
+                                .italic()
+                                .foregroundStyle(configuration.secondaryColor)
+                        }
                     }
                 }
                 .padding(.top, (index == 0) ? 0 : blockPadding(block, edge: .top))
                 .padding(.bottom, (index == blocks.count - 1) ? 0 : blockPadding(block, edge: .bottom))
             }
         }
+        .foregroundStyle(configuration.primaryColor)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     func blockPadding(_ block: BlockNode, edge: VerticalEdge) -> CGFloat {
-        8
+        if block == .truncationTerminator, edge == .top {
+            return 0
+        }
+        return 8
     }
     
     @ViewBuilder
@@ -128,38 +147,54 @@ public struct Markdown: View {
                 .font(.body.monospaced())
                 .padding(10)
         }
-        .background(Color(uiColor: .secondarySystemBackground))
+        .background(configuration.codeBackgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
     
     @ViewBuilder
-    func bulletedList(items: [ListItemNode]) -> some View {
-        VStack(spacing: 3) {
+    func bulletedList(items: [ListItemNode], truncatedRows: Int = 0) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
             ForEach(Array(items.enumerated()), id: \.offset) { _, item in
-                HStack(alignment: .center, spacing: 8) {
-                    Circle()
-                        .fill(Color(uiColor: .tertiaryLabel))
-                        .frame(width: 6, height: 6)
+                HStack(alignment: .top, spacing: 8) {
+                    Text(" ")
+                        .overlay {
+                            Circle()
+                                .fill(Color(uiColor: .tertiaryLabel))
+                        }
                     Markdown(item.blocks, configuration: configuration)
                 }
                 .frame(maxWidth: .infinity)
+            }
+            if truncatedRows != 0 {
+                Text("  + \(truncatedRows) more items...")
+                    .italic()
+                    .foregroundStyle(configuration.secondaryColor)
             }
         }
         .frame(maxWidth: .infinity)
     }
     
     @ViewBuilder
-    func numberedList(items: [ListItemNode], startIndex: Int = 1) -> some View {
-        VStack(spacing: 3) {
+    func numberedList(items: [ListItemNode], startIndex: Int = 1, truncatedRows: Int = 0) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
             ForEach(Array(items.enumerated()), id: \.offset) { index, item in
-                HStack(alignment: .center, spacing: 7) {
+                HStack(alignment: .top, spacing: 7) {
                     Text("\(startIndex + index).")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(configuration.secondaryColor)
                     Markdown(item.blocks, configuration: configuration)
                 }
                 .frame(maxWidth: .infinity)
             }
+            if truncatedRows != 0 {
+                Text("   + \(truncatedRows) more items...")
+                    .italic()
+                    .foregroundStyle(configuration.secondaryColor)
+            }
         }
         .frame(maxWidth: .infinity)
+    }
+    
+    var fadeGradient: some View {
+        LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
     }
 }
