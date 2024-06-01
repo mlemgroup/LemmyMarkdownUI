@@ -16,6 +16,18 @@ public extension [BlockNode] {
         self.reduce([], { $0 + $1.links })
     }
     
+    var isSimpleParagraphs: Bool {
+        for node in self {
+            switch node {
+            case let .paragraph(inlines: inlines):
+                if inlines.isSingleImage { return false }
+            default:
+                return false
+            }
+        }
+        return true
+    }
+    
     internal func truncate(data: TruncationData) -> [BlockNode] {
         var ret: [BlockNode] = .init()
         for node in self {
