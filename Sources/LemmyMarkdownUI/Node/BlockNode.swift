@@ -15,7 +15,7 @@ public enum BlockNode: Hashable, Node {
     case numberedList(isTight: Bool, start: Int, items: [ListItemNode], truncatedRows: Int = 0)
     case codeBlock(fenceInfo: String?, content: String, truncatedRows: Int = 0)
     case paragraph(inlines: [InlineNode])
-    case heading(level: Int, inlines: [InlineNode])
+    case heading(level: HeadingLevel, inlines: [InlineNode])
     case table(columnAlignments: [RawTableColumnAlignment], rows: [TableRowNode], truncatedRows: Int = 0)
     case thematicBreak
     
@@ -166,7 +166,7 @@ internal extension BlockNode {
             self = .paragraph(inlines: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:)))
         case .heading:
             self = .heading(
-                level: unsafeNode.headingLevel,
+                level: .init(rawValue: unsafeNode.headingLevel) ?? ._6,
                 inlines: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:))
             )
             case .table:

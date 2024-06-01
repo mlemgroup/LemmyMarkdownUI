@@ -35,7 +35,7 @@ public struct MarkdownConfiguration {
         spoilerOutlineColor: Color = Color(uiColor: .tertiaryLabel),
         codeBackgroundColor: Color = .init(uiColor: .secondarySystemBackground),
         quoteBarColor: Color = .init(uiColor: .tertiaryLabel),
-        quoteColor: Color = .primary
+        quoteColor: Color = .secondary
     ) {
         self.inlineImageLoader = inlineImageLoader
         self.imageBlockView = imageBlockView

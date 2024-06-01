@@ -8,17 +8,17 @@
 import Foundation
 import SwiftUI
 
-public struct InlineMarkdown: View {
+public struct MarkdownText: View {
     
-    var renderer: InlineRenderer
-    var configuration: MarkdownConfiguration
+    private var type: InlineRenderer.InlineType
+    private var configuration: MarkdownConfiguration
     
     public init(
         _ markdown: String,
         configuration: MarkdownConfiguration
     ) {
         self.init(
-            [InlineNode].init(markdown),
+            [BlockNode].init(markdown),
             configuration: configuration
         )
     }
@@ -27,31 +27,22 @@ public struct InlineMarkdown: View {
         _ inlines: [InlineNode],
         configuration: MarkdownConfiguration
     ) {
-        self.renderer = .init(inlines: inlines, configuration: configuration)
+        self.type = InlineRenderer(inlines: inlines, configuration: configuration).type
         self.configuration = configuration
     }
     
-    private func text(components: [InlineRenderer.Component]) -> some View {
-        var text = Text("")
-        for component in components {
-            switch component {
-            case let .text(attributedString):
-                // swiftlint:disable:next shorthand_operator
-                text = text + Text(attributedString)
-            case let .image(attatchment):
-
-                let image: Image = attatchment.image ?? Image(systemName: "arrow.down.circle")
-                // swiftlint:disable:next shorthand_operator
-                text = text + Text(image)
-            }
-        }
-        return text
+    public init(
+        _ blocks: [BlockNode],
+        configuration: MarkdownConfiguration
+    ) {
+        self.type = InlineRenderer(blocks: blocks, configuration: configuration).type
+        self.configuration = configuration
     }
     
     public var body: some View {
-        switch renderer.type {
+        switch type {
         case let .text(components, images):
-            text(components: components)
+            components.text(configuration: configuration)
                 .task {
                     for image in images {
                         await configuration.inlineImageLoader(image)
@@ -59,8 +50,9 @@ public struct InlineMarkdown: View {
                 }
         case let .singleImage(image):
             configuration.imageBlockView(image)
-        default:
-            Text("Error")
         }
     }
 }
+
+@available(*, deprecated, renamed: "MarkdownText")
+public typealias InlineMarkdown = MarkdownText

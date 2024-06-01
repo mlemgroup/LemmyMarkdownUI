@@ -95,37 +95,21 @@ public struct Markdown: View {
     
     @ViewBuilder
     func inlineMarkdown(_ inlines: [InlineNode]) -> some View {
-        InlineMarkdown(
+        MarkdownText(
             inlines,
             configuration: configuration
         )
     }
     
     @ViewBuilder
-    func heading(level: Int, inlines: [InlineNode]) -> some View {
-        Group {
-            switch level {
-            case 1:
-                VStack(alignment: .leading, spacing: 0) {
-                    inlineMarkdown(inlines)
-                        .font(.title)
-                        .fontWeight(.bold)
+    func heading(level: HeadingLevel, inlines: [InlineNode]) -> some View {
+            VStack(alignment: .leading, spacing: 0) {
+                inlineMarkdown(inlines)
+                    .font(level.font)
+                if level == ._1 {
                     Divider()
                 }
-            case 2:
-                inlineMarkdown(inlines)
-                    .font(.title2)
-                    .fontWeight(.bold)
-            case 3:
-                inlineMarkdown(inlines)
-                    .font(.title3)
-                    .fontWeight(.semibold)
-            default:
-                inlineMarkdown(inlines)
-                    .font(.headline)
-                    .fontWeight(.semibold)
             }
-        }
     }
     
     @ViewBuilder
