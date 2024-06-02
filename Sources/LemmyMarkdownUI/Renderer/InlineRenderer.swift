@@ -155,8 +155,6 @@ internal class InlineRenderer {
         if let last = components.last, last.isNewLine {
             components.removeLast()
         }
-        
-        print(components)
     }
     
     private func renderInlines(
