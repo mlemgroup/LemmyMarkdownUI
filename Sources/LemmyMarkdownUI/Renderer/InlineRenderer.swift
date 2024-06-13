@@ -39,8 +39,10 @@ internal class InlineRenderer {
     var type: InlineType!
     
     private var components: [Component] = .init()
+    private var indent: Int = 0
     private var images: [InlineImage] = .init()
     private var currentText: AttributedString = .init()
+    private var count = 0
     
     init(inlines: [InlineNode], configuration: MarkdownConfiguration) {
         renderInlines(inlines: inlines, configuration: configuration)
@@ -81,8 +83,9 @@ internal class InlineRenderer {
         configuration: MarkdownConfiguration,
         withNewlines: Bool = false
     ) {
+        count += 1
         for (index, block) in blocks.enumerated() {
-            if withNewlines || (index != 0 && index != blocks.count - 1) {
+            if withNewlines || (index != 0) {
                 components.newline(2)
             }
             switch block {
@@ -111,21 +114,21 @@ internal class InlineRenderer {
             case let .spoiler(title: title, blocks: _):
                 var attributes = attributes
                 attributes.foregroundColor = configuration.secondaryColor
-                components.append(.text(.init("[Spoiler] \(title ?? "")", attributes: attributes)))
+                components.append(.init("[Spoiler] \(title ?? "")", attributes: attributes), indent: indent)
             case .table:
                 var attributes = attributes
                 attributes.foregroundColor = configuration.secondaryColor
-                components.append(.text(.init("[Table]", attributes: attributes)))
+                components.append(.init("[Table]", attributes: attributes), indent: indent)
             case let .codeBlock(fenceInfo: _, content: content, truncatedRows: _):
                 var attributes = attributes
                 attributes.font = .body.monospaced()
                 attributes.foregroundColor = configuration.secondaryColor
-                components.append(.text(.init(content, attributes: attributes)))
+                components.append(.init(content, attributes: attributes), indent: indent)
             case let .bulletedList(isTight: _, items: items, truncatedRows: _):
                 var bulletAttributes = attributes
                 bulletAttributes.foregroundColor = configuration.secondaryColor
                 for (index, item) in items.enumerated() {
-                    components.append(.text(.init("- ", attributes: bulletAttributes)))
+                    components.append(.init("- ", attributes: bulletAttributes), indent: indent)
                     renderBlocks(
                         blocks: item.blocks,
                         attributes: attributes,
@@ -137,7 +140,7 @@ internal class InlineRenderer {
                 var bulletAttributes = attributes
                 bulletAttributes.foregroundColor = configuration.secondaryColor
                 for (index, item) in items.enumerated() {
-                    components.append(.text(.init("\(start + index). ", attributes: bulletAttributes)))
+                    components.append(.init("\(start + index). ", attributes: bulletAttributes), indent: indent)
                     renderBlocks(
                         blocks: item.blocks,
                         attributes: attributes,
@@ -148,7 +151,7 @@ internal class InlineRenderer {
             default:
                 break
             }
-            if withNewlines || (index != 0 && index != blocks.count - 1) {
+            if withNewlines || (index != blocks.count - 1) {
                 components.newline(2)
             }
         }
@@ -195,7 +198,7 @@ internal class InlineRenderer {
             }
         }
         if isRoot {
-            components.append(.text(currentText))
+            components.append(currentText, indent: indent)
             currentText = .init()
         }
     }
@@ -211,9 +214,9 @@ extension [InlineRenderer.Component] {
                 text = text + Text(attributedString)
             case let .image(attatchment):
 
-                let image: Image = attatchment.image ?? Image(systemName: "arrow.down.circle")
+                let image: Image = attatchment.image ?? Image(systemName: configuration.unloadedImageIcon)
                 // swiftlint:disable:next shorthand_operator
-                text = text + Text(image)
+                text = text + Text(image).foregroundStyle(configuration.secondaryColor)
             }
         }
         return text
@@ -223,5 +226,9 @@ extension [InlineRenderer.Component] {
         if let last, !last.isNewLine {
             append(.newLine(count))
         }
+    }
+    
+    mutating func append(_ value: AttributedString, indent: Int) {
+        append(.text(AttributedString.init(String(repeating: " ", count: indent * 4)) + value))
     }
 }

@@ -22,12 +22,14 @@ public struct MarkdownConfiguration {
     public let codeBackgroundColor: Color
     public let quoteColor: Color
     public let quoteBarColor: Color
+    public var unloadedImageIcon: String
     
     public init(
         inlineImageLoader: @escaping (InlineImage) async -> Void,
         imageBlockView: @escaping (_: InlineImage) -> AnyView,
         stubSpoilers: Bool = false,
         spoilerStubIcon: String = "eye.slash.fill",
+        unloadedImageIcon: String = "photo",
         truncationTerminatorText: String? = nil,
         primaryColor: Color = .primary,
         secondaryColor: Color = .secondary,
@@ -42,6 +44,7 @@ public struct MarkdownConfiguration {
         
         self.stubSpoilers = stubSpoilers
         self.spoilerStubIcon = spoilerStubIcon
+        self.unloadedImageIcon = unloadedImageIcon
         self.truncationTerminatorText = truncationTerminatorText
         
         self.primaryColor = primaryColor
