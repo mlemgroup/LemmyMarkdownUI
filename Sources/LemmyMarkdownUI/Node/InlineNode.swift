@@ -117,6 +117,8 @@ internal extension InlineNode {
                 source: unsafeNode.url ?? "",
                 children: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:))
             )
+        case .htmlInline:
+            self = .text(unsafeNode.literal ?? "")
         default:
             assertionFailure("Unhandled node type '\(unsafeNode.nodeType)' in InlineNode.")
             return nil

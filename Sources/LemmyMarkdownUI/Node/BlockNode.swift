@@ -181,6 +181,8 @@ internal extension BlockNode {
             )
         case .thematicBreak:
             self = .thematicBreak
+        case .htmlBlock:
+            self = .paragraph(inlines: [.text(unsafeNode.literal ?? "")])
         default:
             assertionFailure("Unhandled node type '\(unsafeNode.nodeType)' in BlockNode.")
             return nil

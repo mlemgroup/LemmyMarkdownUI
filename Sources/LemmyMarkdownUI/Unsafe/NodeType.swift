@@ -29,6 +29,8 @@ internal enum NodeType: String {
     case inlineAttributes = "attribute"
     case none = "NONE"
     case unknown = "<unknown>"
+    case htmlInline = "html_inline"
+    case htmlBlock = "html_block"
     
     // Extensions
     
