@@ -29,16 +29,21 @@ internal struct SpoilerView: View {
         self.configuration = configuration
     }
     
+    var titleConfiguration: MarkdownConfiguration {
+        var configuration = configuration
+        configuration.primaryColor = configuration.secondaryColor
+        return configuration
+    }
+    
     var body: some View {
         if configuration.stubSpoilers {
             HStack {
                 Image(systemName: configuration.spoilerStubIcon)
-                InlineMarkdown(
+                MarkdownText(
                     titleInlines,
                     configuration: configuration
                 )
             }
-            .foregroundStyle(configuration.secondaryColor)
         } else {
             content
         }
@@ -50,9 +55,9 @@ internal struct SpoilerView: View {
                 Image(systemName: "chevron.right")
                     .imageScale(.small)
                     .rotationEffect(.degrees(isCollapsed ? 0 : 90))
-                InlineMarkdown(
+                MarkdownText(
                     titleInlines,
-                    configuration: configuration
+                    configuration: titleConfiguration
                 )
             }
             .fontWeight(.bold)

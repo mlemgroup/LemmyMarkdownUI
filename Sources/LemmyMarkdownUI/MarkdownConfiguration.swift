@@ -15,7 +15,7 @@ public struct MarkdownConfiguration {
     public let spoilerStubIcon: String
     public let truncationTerminatorText: String?
     
-    public let primaryColor: Color
+    public var primaryColor: Color
     public let secondaryColor: Color
     public let spoilerHeaderBackgroundColor: Color
     public let spoilerOutlineColor: Color
