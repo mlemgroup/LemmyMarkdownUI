@@ -191,7 +191,7 @@ internal class InlineRenderer {
                 )
             } else {
                 switch node {
-                case let .image(source: source, children: _, truncated):
+                case let .image(source: source, tooltip: tooltip, children: _, truncated):
                     if let url = URL(string: source) {
                         components.append(.text(currentText))
                         currentText = .init()

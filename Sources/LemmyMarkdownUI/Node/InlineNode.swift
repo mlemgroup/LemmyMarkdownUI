@@ -17,8 +17,8 @@ public enum InlineNode: Hashable, Node {
     case superscript(children: [InlineNode])
     case `subscript`(children: [InlineNode])
     case strikethrough(children: [InlineNode])
-    case link(destination: String, children: [InlineNode])
-    case image(source: String, children: [InlineNode], truncated: Bool = false)
+    case link(destination: String, tooltip: String?, children: [InlineNode])
+    case image(source: String, tooltip: String?, children: [InlineNode], truncated: Bool = false)
     
     // Renders as an ellipsis. It can be inserted into the tree when the tree is truncated.
     // This will never be created by the markdown parser.
@@ -38,9 +38,9 @@ public enum InlineNode: Hashable, Node {
             return children
         case let .strikethrough(children):
             return children
-        case let .link(_, children):
+        case let .link(_, _, children):
             return children
-        case let .image(_, children, _):
+        case let .image(_, _, children, _):
             return children
         default:
             return []
@@ -66,7 +66,7 @@ public enum InlineNode: Hashable, Node {
     
     public var links: [LinkData] {
         var ret: [LinkData] = .init()
-        if case let InlineNode.link(destination: destination, children: children) = self {
+        if case let InlineNode.link(destination: destination, _, children: children) = self {
             if let url = URL(string: destination) {
                 ret.append(.init(title: children, url: url))
             }
@@ -79,7 +79,7 @@ public enum InlineNode: Hashable, Node {
     
     public var images: [LinkData] {
         var ret: [LinkData] = .init()
-        if case let InlineNode.image(source, children, _) = self {
+        if case let InlineNode.image(source, _, children, _) = self {
             if let url = URL(string: source) {
                 ret.append(.init(title: children, url: url))
             }
@@ -123,11 +123,13 @@ internal extension InlineNode {
         case .link:
             self = .link(
                 destination: unsafeNode.url ?? "",
+                tooltip: unsafeNode.title,
                 children: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:))
             )
         case .image:
             self = .image(
                 source: unsafeNode.url ?? "",
+                tooltip: unsafeNode.title,
                 children: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:))
             )
         case .htmlInline:
