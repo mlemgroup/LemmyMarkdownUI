@@ -23,6 +23,7 @@ public struct MarkdownConfiguration {
     public let quoteColor: Color
     public let quoteBarColor: Color
     public var unloadedImageIcon: String
+    public let font: UIFont
     
     public init(
         inlineImageLoader: @escaping (InlineImage) async -> Void,
@@ -37,7 +38,8 @@ public struct MarkdownConfiguration {
         spoilerOutlineColor: Color = Color(uiColor: .tertiaryLabel),
         codeBackgroundColor: Color = .init(uiColor: .secondarySystemBackground),
         quoteBarColor: Color = .init(uiColor: .tertiaryLabel),
-        quoteColor: Color = .secondary
+        quoteColor: Color = .secondary,
+        font: UIFont.TextStyle = .body
     ) {
         self.inlineImageLoader = inlineImageLoader
         self.imageBlockView = imageBlockView
@@ -54,5 +56,7 @@ public struct MarkdownConfiguration {
         self.codeBackgroundColor = codeBackgroundColor
         self.quoteBarColor = quoteBarColor
         self.quoteColor = quoteColor
+        
+        self.font = .preferredFont(forTextStyle: font)
     }
 }

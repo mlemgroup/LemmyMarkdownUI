@@ -128,7 +128,7 @@ public struct Markdown: View {
     func codeBlock(content: String) -> some View {
         ScrollView(.horizontal) {
             Text(content.trimmingCharacters(in: .newlines))
-                .font(.body.monospaced())
+                .font(Font(configuration.font).monospaced())
                 .padding(10)
         }
         .background(configuration.codeBackgroundColor)
