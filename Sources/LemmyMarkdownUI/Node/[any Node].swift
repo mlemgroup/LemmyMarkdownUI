@@ -11,4 +11,8 @@ internal extension [any Node] {
     var links: [LinkData] {
         self.reduce([], { $0 + $1.links })
     }
+    
+    var images: [LinkData] {
+        self.reduce([], { $0 + $1.images })
+    }
 }

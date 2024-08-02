@@ -14,6 +14,7 @@ public struct TableRowNode: Hashable, Node {
     
     var searchChildrenForLinks: Bool { true }
     public var links: [LinkData] { children.links }
+    public var images: [LinkData] { children.images }
 }
 
 internal extension TableRowNode {

@@ -62,6 +62,17 @@ public enum BlockNode: Hashable, Node {
         return children.links
     }
     
+    public var images: [LinkData] {
+        if case .spoiler = self {
+            return children.images.map {
+                var new = $0
+                new.insideSpoiler = true
+                return new
+            }
+        }
+        return children.images
+    }
+    
     internal func truncate(data: TruncationData) -> BlockNode? {
         switch self {
         case let .blockquote(blocks):

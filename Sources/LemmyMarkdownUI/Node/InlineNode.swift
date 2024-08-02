@@ -77,6 +77,19 @@ public enum InlineNode: Hashable, Node {
         return ret
     }
     
+    public var images: [LinkData] {
+        var ret: [LinkData] = .init()
+        if case let InlineNode.image(source, children, _) = self {
+            if let url = URL(string: source) {
+                ret.append(.init(title: children, url: url))
+            }
+        }
+        if self.searchChildrenForLinks {
+            ret += self.inlineChildren.images
+        }
+        return ret
+    }
+    
     public var stringLiteral: String {
         if let string { return string }
         return inlineChildren.stringLiteral
