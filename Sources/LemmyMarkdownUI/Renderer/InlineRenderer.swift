@@ -18,7 +18,7 @@ internal class InlineRenderer {
         case singleImage(image: InlineImage)
     }
 
-    enum Component {
+    enum Component: Hashable {
         case text(AttributedString)
         case image(InlineImage)
         
@@ -33,6 +33,20 @@ internal class InlineRenderer {
             case .image:
                 false
             }
+        }
+        
+        func hash(into hasher: inout Hasher) {
+            switch self {
+            case let .text(attributedString):
+                hasher.combine(attributedString)
+            case let .image(image):
+                hasher.combine(image.url)
+            }
+            
+        }
+        
+        static func == (lhs: Component, rhs: Component) -> Bool {
+            lhs.hashValue == rhs.hashValue
         }
     }
     
@@ -230,5 +244,28 @@ extension [InlineRenderer.Component] {
     
     mutating func append(_ value: AttributedString, indent: Int) {
         append(.text(AttributedString.init(String(repeating: " ", count: indent * 4)) + value))
+    }
+    
+    func grouped() -> [[InlineRenderer.Component]] {
+        var output: [[InlineRenderer.Component]] = []
+        var current: [InlineRenderer.Component] = []
+        for component in self {
+            switch component {
+            case let .image(image):
+                if image.renderFullWidth {
+                    output.append(current)
+                    output.append([component])
+                    current = []
+                } else {
+                    current.append(component)
+                }
+            case .text:
+                current.append(component)
+            }
+        }
+        if !current.isEmpty {
+            output.append(current)
+        }
+        return output
     }
 }

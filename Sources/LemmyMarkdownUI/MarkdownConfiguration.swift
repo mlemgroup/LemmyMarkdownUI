@@ -11,6 +11,7 @@ public struct MarkdownConfiguration {
     public let inlineImageLoader: (InlineImage) async -> Void
     @ViewBuilder public let imageBlockView: (_ image: InlineImage) -> AnyView
     
+    public let allowInlineImages: Bool
     public let stubSpoilers: Bool
     public let spoilerStubIcon: String
     public let truncationTerminatorText: String?
@@ -26,6 +27,7 @@ public struct MarkdownConfiguration {
     public let font: UIFont
     
     public init(
+        allowInlineImages: Bool = true,
         inlineImageLoader: @escaping (InlineImage) async -> Void,
         imageBlockView: @escaping (_: InlineImage) -> AnyView,
         stubSpoilers: Bool = false,
@@ -41,6 +43,8 @@ public struct MarkdownConfiguration {
         quoteColor: Color = .secondary,
         font: UIFont.TextStyle = .body
     ) {
+        self.allowInlineImages = allowInlineImages
+        
         self.inlineImageLoader = inlineImageLoader
         self.imageBlockView = imageBlockView
         
