@@ -43,7 +43,7 @@ internal extension InlineNode {
             attributes.uiKit.font = font.withSize(size)
         case .strikethrough:
             attributes.strikethroughStyle = .single
-        case let .link(destination: url, children: _):
+        case let .link(destination: url, _, children: _):
             attributes.link = URL(string: url)
         case .truncationTerminator:
             attributes.foregroundColor = configuration.secondaryColor

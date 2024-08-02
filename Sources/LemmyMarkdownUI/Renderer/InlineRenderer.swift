@@ -13,11 +13,6 @@ internal extension UIFont {
 }
 
 internal class InlineRenderer {
-    enum InlineType {
-        case text(components: [Component], images: [InlineImage])
-        case singleImage(image: InlineImage)
-    }
-
     enum Component: Hashable {
         case text(AttributedString)
         case image(InlineImage)
@@ -50,11 +45,10 @@ internal class InlineRenderer {
         }
     }
     
-    var type: InlineType!
+    var components: [Component] = .init()
+    var images: [InlineImage] = .init()
     
-    private var components: [Component] = .init()
     private var indent: Int = 0
-    private var images: [InlineImage] = .init()
     private var currentText: AttributedString = .init()
     private var count = 0
     
@@ -63,34 +57,10 @@ internal class InlineRenderer {
         if !currentText.characters.isEmpty {
             components.append(.text(currentText))
         }
-        chooseType()
     }
     
     init(blocks: [BlockNode], configuration: MarkdownConfiguration) {
         renderBlocks(blocks: blocks, configuration: configuration, withNewlines: true)
-        chooseType()
-    }
-    
-    private func chooseType() {
-        if images.count == 1, let image = images.first {
-            var isSingleImage = true
-            loop: for component in components {
-                switch component {
-                case let .text(attributedString):
-                    if !attributedString.characters.allSatisfy(\.isWhitespace) {
-                        isSingleImage = false
-                        break loop
-                    }
-                default:
-                    break
-                }
-            }
-            if isSingleImage {
-                self.type = .singleImage(image: image)
-                return
-            }
-        }
-        self.type = .text(components: components, images: images)
     }
     
     private func renderBlocks(
@@ -191,12 +161,14 @@ internal class InlineRenderer {
                 )
             } else {
                 switch node {
-                case let .image(source: source, children: _, truncated):
+                case let .image(source: source, tooltip: tooltip, children: children, truncated):
                     if let url = URL(string: source) {
                         components.append(.text(currentText))
                         currentText = .init()
                         let attatchment = InlineImage(
+                            children: children,
                             url: url,
+                            tooltip: tooltip,
                             fontSize: attributes.uiKit.font?.pointSize ?? UIFont.bodyPointSize,
                             truncated: truncated
                         )

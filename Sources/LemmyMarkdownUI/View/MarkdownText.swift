@@ -10,85 +10,83 @@ import SwiftUI
 
 public struct MarkdownText: View {
     
-    private var type: InlineRenderer.InlineType
+    private var components: [InlineRenderer.Component]
+    private var images: [InlineImage]
     private var configuration: MarkdownConfiguration
-    private var loadImages: Bool
     
     public init(
         _ markdown: String,
-        configuration: MarkdownConfiguration,
-        loadImages: Bool = true
+        configuration: MarkdownConfiguration
     ) {
         self.init(
             [BlockNode].init(markdown),
-            configuration: configuration,
-            loadImages: loadImages
+            configuration: configuration
         )
     }
     
     public init(
         _ inlines: [InlineNode],
-        configuration: MarkdownConfiguration,
-        loadImages: Bool = true
+        configuration: MarkdownConfiguration
     ) {
-        self.type = InlineRenderer(inlines: inlines, configuration: configuration).type
+        let renderer = InlineRenderer(inlines: inlines, configuration: configuration)
+        self.components = renderer.components
+        self.images = renderer.images
         self.configuration = configuration
-        self.loadImages = loadImages
     }
     
     public init(
         _ blocks: [BlockNode],
-        configuration: MarkdownConfiguration,
-        loadImages: Bool = true
+        configuration: MarkdownConfiguration
     ) {
-        self.type = InlineRenderer(blocks: blocks, configuration: configuration).type
+        let renderer = InlineRenderer(blocks: blocks, configuration: configuration)
+        self.components = renderer.components
+        self.images = renderer.images
         self.configuration = configuration
-        self.loadImages = loadImages
     }
     
     public var body: some View {
-        switch type {
-        case let .text(components, images):
-            if configuration.allowInlineImages {
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(components.grouped(), id: \.self) { group in
-                        if group.count == 1, let item = group.first {
-                            if case let .image(image) = item {
-                                configuration.imageBlockView(image)
-                            } else {
-                                group.text(configuration: configuration)
-                            }
-                        } else {
-                            group.text(configuration: configuration)
-                        }
-                    }
-                }
-                .task {
-                    if loadImages {
-                        for image in images {
-                            await configuration.inlineImageLoader(image)
-                        }
-                    }
-                }
-                .foregroundStyle(configuration.primaryColor)
-            } else {
-                if images.isEmpty {
-                    components.text(configuration: configuration)
+        if configuration.allowInlineImages {
+            Group {
+                let groupedComponents = components.grouped()
+                if groupedComponents.count == 1, let group = groupedComponents.first {
+                    group.text(configuration: configuration)
                 } else {
                     VStack(alignment: .leading, spacing: 8) {
-                        ForEach(Array(components.enumerated()), id: \.offset) { _, item in
-                            switch item {
-                            case let .text(text):
-                                Text(text)
-                            case let .image(image):
-                                configuration.imageBlockView(image)
+                        ForEach(groupedComponents, id: \.self) { group in
+                            if group.count == 1, let item = group.first {
+                                if case let .image(image) = item {
+                                    configuration.imageBlockView(image)
+                                } else {
+                                    group.text(configuration: configuration)
+                                }
+                            } else {
+                                group.text(configuration: configuration)
                             }
                         }
                     }
                 }
             }
-        case let .singleImage(image):
-            configuration.imageBlockView(image)
+            .task {
+                for image in images {
+                    await configuration.inlineImageLoader(image)
+                }
+            }
+            .foregroundStyle(configuration.primaryColor)
+        } else {
+            if images.isEmpty {
+                components.text(configuration: configuration)
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(Array(components.enumerated()), id: \.offset) { _, item in
+                        switch item {
+                        case let .text(text):
+                            Text(text)
+                        case let .image(image):
+                            configuration.imageBlockView(image)
+                        }
+                    }
+                }
+            }
         }
     }
 }

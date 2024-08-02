@@ -112,18 +112,18 @@ public extension [InlineNode] {
                     shouldTruncate: shouldTruncate
                 )))
                 isSingleImage = false
-            case let .link(destination, children):
-                ret.append(.link(destination: destination, children: children.truncate(
+            case let .link(destination, tooltip, children):
+                ret.append(.link(destination: destination, tooltip: tooltip, children: children.truncate(
                     data: data,
                     charactersEaten: &charactersEaten,
                     shouldTruncate: false
                 )))
                 isSingleImage = false
-            case let .image(source, children, _):
+            case let .image(source, tooltip, children, _):
                 if isSingleImage == nil {
                     isSingleImage = true
                 }
-                ret.append(.image(source: source, children: children))
+                ret.append(.image(source: source, tooltip: tooltip, children: children))
             default:
                 isSingleImage = false
                 ret.append(node)
@@ -147,8 +147,8 @@ public extension [InlineNode] {
             data.linesRemaining = 0
             return ret.map { node in
                 switch node {
-                case let .image(source, children, _):
-                    return .image(source: source, children: children, truncated: true)
+                case let .image(source, tooltip, children, _):
+                    return .image(source: source, tooltip: tooltip, children: children, truncated: true)
                 default:
                     return node
                 }

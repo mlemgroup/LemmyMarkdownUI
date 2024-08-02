@@ -97,8 +97,7 @@ public struct Markdown: View {
     func inlineMarkdown(_ inlines: [InlineNode]) -> some View {
         MarkdownText(
             inlines,
-            configuration: configuration,
-            loadImages: true
+            configuration: configuration
         )
     }
     

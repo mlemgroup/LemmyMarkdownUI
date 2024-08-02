@@ -41,8 +41,7 @@ internal struct SpoilerView: View {
                 Image(systemName: configuration.spoilerStubIcon)
                 MarkdownText(
                     titleInlines,
-                    configuration: configuration,
-                    loadImages: true
+                    configuration: configuration
                 )
             }
         } else {
@@ -58,8 +57,7 @@ internal struct SpoilerView: View {
                     .rotationEffect(.degrees(isCollapsed ? 0 : 90))
                 MarkdownText(
                     titleInlines,
-                    configuration: titleConfiguration,
-                    loadImages: true
+                    configuration: titleConfiguration
                 )
             }
             .fontWeight(.bold)
