@@ -17,6 +17,10 @@ public extension [InlineNode] {
         self.reduce([], { $0 + $1.links })
     }
     
+    var images: [LinkData] {
+        self.reduce([], { $0 + $1.images })
+    }
+    
     var stringLiteral: String {
         self.reduce("", { $0 + $1.stringLiteral })
     }

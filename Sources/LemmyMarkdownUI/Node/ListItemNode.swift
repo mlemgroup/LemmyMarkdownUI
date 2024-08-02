@@ -14,6 +14,7 @@ public struct ListItemNode: Hashable, Node {
     
     var children: [Node] { blocks }
     public var links: [LinkData] { children.links }
+    public var images: [LinkData] { children.images }
 }
 
 internal extension ListItemNode {
