@@ -10,7 +10,7 @@ import Foundation
 public extension [InlineNode] {
     init(_ markdown: String) {
         let blocks: [BlockNode] = .init(markdown)
-        self.init((blocks.first?.children as? [InlineNode]) ?? [])
+        self.init((blocks.first?.children as? [InlineNode]) ?? [.text(markdown)])
     }
     
     var links: [LinkData] {
