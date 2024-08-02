@@ -121,15 +121,17 @@ internal extension InlineNode {
         case .strikethrough:
             self = .strikethrough(children: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:)))
         case .link:
+            let tooltip = unsafeNode.title
             self = .link(
                 destination: unsafeNode.url ?? "",
-                tooltip: unsafeNode.title,
+                tooltip: (tooltip?.isEmpty ?? true) ? nil : tooltip,
                 children: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:))
             )
         case .image:
+            let tooltip = unsafeNode.title
             self = .image(
                 source: unsafeNode.url ?? "",
-                tooltip: unsafeNode.title,
+                tooltip: (tooltip?.isEmpty ?? true) ? nil : tooltip,
                 children: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:))
             )
         case .htmlInline:
