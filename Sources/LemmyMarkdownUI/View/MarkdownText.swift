@@ -72,13 +72,17 @@ public struct MarkdownText: View {
                 }
                 .foregroundStyle(configuration.primaryColor)
             } else {
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(Array(components.enumerated()), id: \.offset) { _, item in
-                        switch item {
-                        case let .text(text):
-                            Text(text)
-                        case let .image(image):
-                            configuration.imageBlockView(image)
+                if images.isEmpty {
+                    components.text(configuration: configuration)
+                } else {
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(Array(components.enumerated()), id: \.offset) { _, item in
+                            switch item {
+                            case let .text(text):
+                                Text(text)
+                            case let .image(image):
+                                configuration.imageBlockView(image)
+                            }
                         }
                     }
                 }

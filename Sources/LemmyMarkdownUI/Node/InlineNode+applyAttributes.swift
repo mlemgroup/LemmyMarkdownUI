@@ -15,6 +15,7 @@ internal extension InlineNode {
     ) -> AttributeContainer {
         let font: UIFont = (attributes.uiKit.font) ?? configuration.font
         var attributes = attributes
+        attributes.uiKit.font = font
         switch self {
         case .emphasis:
             attributes.uiKit.font = UIFont(

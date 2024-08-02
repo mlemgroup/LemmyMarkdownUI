@@ -60,7 +60,9 @@ internal class InlineRenderer {
     
     init(inlines: [InlineNode], configuration: MarkdownConfiguration) {
         renderInlines(inlines: inlines, configuration: configuration)
-        components.append(.text(currentText))
+        if !currentText.characters.isEmpty {
+            components.append(.text(currentText))
+        }
         chooseType()
     }
     
