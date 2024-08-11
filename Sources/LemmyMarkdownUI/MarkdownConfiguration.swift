@@ -24,7 +24,7 @@ public struct MarkdownConfiguration {
     public let quoteColor: Color
     public let quoteBarColor: Color
     public var unloadedImageIcon: String
-    public let font: UIFont
+    public var font: UIFont
     
     public init(
         allowInlineImages: Bool = true,
@@ -62,5 +62,11 @@ public struct MarkdownConfiguration {
         self.quoteColor = quoteColor
         
         self.font = .preferredFont(forTextStyle: font)
+    }
+    
+    internal func withFont(_ font: UIFont) -> Self {
+        var new = self
+        new.font = font
+        return new
     }
 }

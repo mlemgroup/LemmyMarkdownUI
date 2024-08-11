@@ -104,8 +104,11 @@ public struct Markdown: View {
     @ViewBuilder
     func heading(level: HeadingLevel, inlines: [InlineNode]) -> some View {
             VStack(alignment: .leading, spacing: 0) {
-                inlineMarkdown(inlines)
-                    .font(level.font)
+                MarkdownText(
+                    inlines,
+                    configuration: configuration.withFont(level.font)
+                )
+                .fontWeight(.semibold)
                 if level == ._1 {
                     Divider()
                 }
