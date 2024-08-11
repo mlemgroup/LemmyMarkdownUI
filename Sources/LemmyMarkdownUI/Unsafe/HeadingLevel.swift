@@ -15,16 +15,16 @@ public enum HeadingLevel: Int {
     case _5 = 5
     case _6 = 6
     
-    internal var font: Font {
+    internal var font: UIFont {
         switch self {
         case ._1:
-            .title.weight(.bold)
+            .preferredFont(forTextStyle: .title1)
         case ._2:
-            .title2.weight(.bold)
+            .preferredFont(forTextStyle: .title2)
         case ._3:
-            .title3.weight(.semibold)
+            .preferredFont(forTextStyle: .title3)
         default:
-            .headline.weight(.semibold)
+            .preferredFont(forTextStyle: .headline)
         }
     }
 }
