@@ -10,7 +10,7 @@ import Foundation
 public struct ListItemNode: Hashable, Node {
     var searchChildrenForLinks: Bool { true }
     
-    let blocks: [BlockNode]
+    public let blocks: [BlockNode]
     
     var children: [Node] { blocks }
     public var links: [LinkData] { children.links }
