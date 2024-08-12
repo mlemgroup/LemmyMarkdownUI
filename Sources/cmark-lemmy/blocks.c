@@ -812,7 +812,7 @@ static int S_scan_thematic_break(cmark_parser *parser, cmark_chunk *input,
   int count;
   i = offset;
   c = peek_at(input, i);
-  if (!(c == '*' || c == '_' || c == '-')) {
+  if (!(c == '*' || c == '_' || c == '-' || c == '.' )) {
     parser->thematic_break_kill_pos = i;
     return 0;
   }

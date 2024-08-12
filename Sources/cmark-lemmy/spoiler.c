@@ -75,18 +75,15 @@ static cmark_node *try_opening_spoiler_block(cmark_syntax_extension *self,
     bufsize_t start = parser->offset;
     cmark_parser_advance_offset(parser, input, matched, true);
     ((cmark_spoiler *)spoiler_node->as.opaque)->fence_length = (matched > 255) ? 255 : matched;
-
     cmark_strbuf *info = parser->mem->calloc(1, sizeof(cmark_strbuf));
     bufsize_t offset = parser->offset - start;
     cmark_strbuf_init(parser->mem, info, len - matched);
     cmark_strbuf_put(info, input + offset, len - matched);
     cmark_strbuf_trim(info);
 
-    if (cmark_strbuf_len(info) == 7) {
+    if (cmark_strbuf_len(info) == 0) {
        ((cmark_spoiler *)spoiler_node->as.opaque)->title = NULL;
-    } else { 
-      cmark_strbuf_drop(info, 7);
-      cmark_strbuf_trim(info);
+    } else {
       ((cmark_spoiler *)spoiler_node->as.opaque)->title = (char *)info->ptr;
     }
 
