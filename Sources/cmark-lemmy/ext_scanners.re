@@ -1,4 +1,3 @@
-/*!re2c re2c:flags:no-debug-info = 1; */
 /*!re2c re2c:indent:string = '  '; */
 
 #include <stdlib.h>
@@ -25,6 +24,7 @@ bufsize_t _ext_scan_at(bufsize_t (*scanner)(const unsigned char *), unsigned cha
   re2c:define:YYCTYPE  = "unsigned char";
   re2c:define:YYCURSOR = p;
   re2c:define:YYMARKER = marker;
+  re2c:define:YYCTXMARKER = marker;
   re2c:yyfill:enable = 0;
 
   spacechar = [ \t\v\f];
@@ -87,6 +87,26 @@ bufsize_t _scan_tasklist(const unsigned char *p)
   const unsigned char *start = p;
   /*!re2c
     tasklist { return (bufsize_t)(p - start); }
+    * { return 0; }
+  */
+}
+
+bufsize_t _scan_open_spoiler_fence(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+  /*!re2c
+    [:]{3,}[ \t\v\f]"spoiler"[ \t\v\f]? / [^\r\n\x00]*[\r\n] { return (bufsize_t)(p - start); }
+    * { return 0; }
+  */
+}
+
+bufsize_t _scan_close_spoiler_fence(const unsigned char *p)
+{
+  const unsigned char *marker = NULL;
+  const unsigned char *start = p;
+  /*!re2c
+    [:]{3,} / [ \t]*[\r\n] { return (bufsize_t)(p - start); }
     * { return 0; }
   */
 }
