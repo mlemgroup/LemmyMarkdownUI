@@ -640,10 +640,7 @@ yy69:
   ++p;
   p = marker;
 #line 99 "ext_scanners.re"
-  {
-    printf("SIZE %d\n", p - start);
-    return (bufsize_t)(p - start);
-    }
+  { return (bufsize_t)(p - start); }
 #line 648 "ext_scanners.c"
 }
 #line 104 "ext_scanners.re"
