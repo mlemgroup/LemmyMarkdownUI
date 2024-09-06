@@ -158,7 +158,7 @@ public struct Markdown: View {
                     .foregroundStyle(configuration.secondaryColor)
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     @ViewBuilder
@@ -178,7 +178,7 @@ public struct Markdown: View {
                     .foregroundStyle(configuration.secondaryColor)
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     var fadeGradient: some View {
