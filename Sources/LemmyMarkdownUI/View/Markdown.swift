@@ -149,8 +149,10 @@ public struct Markdown: View {
                                 .fill(Color(uiColor: .tertiaryLabel))
                         }
                     Markdown(item.blocks, configuration: configuration)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             if truncatedRows != 0 {
                 Text("  + \(truncatedRows) more items...")
@@ -158,7 +160,7 @@ public struct Markdown: View {
                     .foregroundStyle(configuration.secondaryColor)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     @ViewBuilder
@@ -169,8 +171,10 @@ public struct Markdown: View {
                     Text("\(startIndex + index).")
                         .foregroundStyle(configuration.secondaryColor)
                     Markdown(item.blocks, configuration: configuration)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             if truncatedRows != 0 {
                 Text("   + \(truncatedRows) more items...")
@@ -178,7 +182,7 @@ public struct Markdown: View {
                     .foregroundStyle(configuration.secondaryColor)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     var fadeGradient: some View {
