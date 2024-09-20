@@ -118,6 +118,7 @@ public struct Markdown: View {
     @ViewBuilder
     func blockQuote(blocks: [BlockNode]) -> some View {
         Markdown(blocks, configuration: configuration)
+            .fixedSize(horizontal: false, vertical: true)
             .padding(.leading, 15)
             .overlay(alignment: .leading) {
                 Capsule()
