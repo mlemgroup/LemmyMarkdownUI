@@ -84,6 +84,7 @@ public struct Markdown: View {
         }
         .foregroundStyle(configuration.primaryColor)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .fixedSize(horizontal: false, vertical: true)
     }
     
     func blockPadding(_ block: BlockNode, edge: VerticalEdge) -> CGFloat {
@@ -118,7 +119,6 @@ public struct Markdown: View {
     @ViewBuilder
     func blockQuote(blocks: [BlockNode]) -> some View {
         Markdown(blocks, configuration: configuration)
-            .fixedSize(horizontal: false, vertical: true)
             .padding(.leading, 15)
             .overlay(alignment: .leading) {
                 Capsule()
@@ -151,7 +151,6 @@ public struct Markdown: View {
                         }
                     Markdown(item.blocks, configuration: configuration)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -173,7 +172,6 @@ public struct Markdown: View {
                         .foregroundStyle(configuration.secondaryColor)
                     Markdown(item.blocks, configuration: configuration)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
