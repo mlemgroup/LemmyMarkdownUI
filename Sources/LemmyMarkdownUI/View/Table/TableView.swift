@@ -22,7 +22,7 @@ public struct TableView: View {
                 ForEach(0..<self.rowCount, id: \.self) { row in
                     GridRow {
                         ForEach(0..<self.columnCount, id: \.self) { column in
-                            InlineMarkdown(self.rows[row].cells[column].content, configuration: configuration)
+                            MarkdownText(self.rows[row].cells[column].content, configuration: configuration)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 2)
                                 .gridColumnAlignment(.init(self.columnAlignments[column]))
