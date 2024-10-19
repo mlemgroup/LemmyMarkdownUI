@@ -13,7 +13,7 @@ internal extension InlineNode {
         _ attributes: AttributeContainer,
         configuration: MarkdownConfiguration
     ) -> AttributeContainer {
-        let font: UIFont = (attributes.uiKit.font) ?? configuration.font
+        var font: UIFont = (attributes.uiKit.font) ?? configuration.font
         var attributes = attributes
         attributes.uiKit.font = font
         switch self {
@@ -32,6 +32,7 @@ internal extension InlineNode {
                 size: font.pointSize
             )
         case .code:
+            font = font.withSize(font.pointSize * configuration.codeFontScaleFactor)
             attributes.font = Font(font).monospaced()
             attributes.backgroundColor = configuration.codeBackgroundColor
         case .superscript:
