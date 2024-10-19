@@ -52,7 +52,7 @@ public struct MarkdownText: View {
                     group.text(configuration: configuration)
                 } else {
                     VStack(alignment: .leading, spacing: 8) {
-                        ForEach(groupedComponents, id: \.self) { group in
+                        ForEach(Array(groupedComponents.enumerated()), id: \.offset) { _, group in
                             if group.count == 1, let item = group.first {
                                 if case let .image(image) = item {
                                     configuration.imageBlockView(image)
@@ -90,6 +90,3 @@ public struct MarkdownText: View {
         }
     }
 }
-
-@available(*, deprecated, renamed: "MarkdownText")
-public typealias InlineMarkdown = MarkdownText
