@@ -41,41 +41,25 @@ public struct Markdown: View {
                         heading(level: level, inlines: inlines)
                     case let .blockquote(blocks: blocks):
                         blockQuote(blocks: blocks)
-                    case let .table(columnAlignments: columnAlignments, rows: rows, truncatedRows: truncatedRows):
-                        if truncatedRows == 0 {
-                            TableView(columnAlignments: columnAlignments, rows: rows, configuration: configuration)
-                        } else {
-                            TableView(columnAlignments: columnAlignments, rows: rows, configuration: configuration)
-                                .mask(fadeGradient)
-                        }
+                    case let .table(columnAlignments: columnAlignments, rows: rows):
+                        TableView(columnAlignments: columnAlignments, rows: rows, configuration: configuration)
                     case let .spoiler(title: title, blocks: blocks):
                         SpoilerView(
                             title: title,
                             blocks: blocks,
                             configuration: configuration
                         )
-                    case let .codeBlock(fenceInfo: _, content: content, truncatedRows: truncatedRows):
-                        if truncatedRows == 0 {
-                            codeBlock(content: content)
-                        } else {
-                            codeBlock(content: content)
-                                .mask(fadeGradient)
-                        }
+                    case let .codeBlock(fenceInfo: _, content: content):
+                        codeBlock(content: content)
                     case .thematicBreak:
                         Rectangle()
                             .fill(Color(uiColor: .secondarySystemBackground))
                             .frame(height: 3)
                             .frame(maxWidth: .infinity)
-                    case let .bulletedList(isTight: _, items: items, truncatedRows: truncatedRows):
-                        bulletedList(items: items, truncatedRows: truncatedRows)
-                    case let .numberedList(isTight: _, start: start, items: items, truncatedRows: truncatedRows):
-                        numberedList(items: items, startIndex: start, truncatedRows: truncatedRows)
-                    case .truncationTerminator:
-                        if let truncationTerminatorText = configuration.truncationTerminatorText {
-                            Text(truncationTerminatorText)
-                                .italic()
-                                .foregroundStyle(configuration.secondaryColor)
-                        }
+                    case let .bulletedList(isTight: _, items: items):
+                        bulletedList(items: items)
+                    case let .numberedList(isTight: _, start: start, items: items):
+                        numberedList(items: items, startIndex: start)
                     }
                 }
                 .padding(.top, (index == 0) ? 0 : blockPadding(block, edge: .top))
@@ -88,9 +72,6 @@ public struct Markdown: View {
     }
     
     func blockPadding(_ block: BlockNode, edge: VerticalEdge) -> CGFloat {
-        if block == .truncationTerminator, edge == .top {
-            return 0
-        }
         return 8
     }
     
@@ -140,7 +121,7 @@ public struct Markdown: View {
     }
     
     @ViewBuilder
-    func bulletedList(items: [ListItemNode], truncatedRows: Int = 0) -> some View {
+    func bulletedList(items: [ListItemNode]) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             ForEach(Array(items.enumerated()), id: \.offset) { _, item in
                 HStack(alignment: .top, spacing: 8) {
@@ -154,17 +135,12 @@ public struct Markdown: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-            if truncatedRows != 0 {
-                Text("  + \(truncatedRows) more items...")
-                    .italic()
-                    .foregroundStyle(configuration.secondaryColor)
-            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     @ViewBuilder
-    func numberedList(items: [ListItemNode], startIndex: Int = 1, truncatedRows: Int = 0) -> some View {
+    func numberedList(items: [ListItemNode], startIndex: Int = 1) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             ForEach(Array(items.enumerated()), id: \.offset) { index, item in
                 HStack(alignment: .top, spacing: 7) {
@@ -174,11 +150,6 @@ public struct Markdown: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            if truncatedRows != 0 {
-                Text("   + \(truncatedRows) more items...")
-                    .italic()
-                    .foregroundStyle(configuration.secondaryColor)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

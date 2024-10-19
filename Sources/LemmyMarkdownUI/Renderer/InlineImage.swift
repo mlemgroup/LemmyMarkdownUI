@@ -15,14 +15,12 @@ public class InlineImage {
     public let url: URL
     public let fontSize: CGFloat
     public var image: Image?
-    public let truncated: Bool
     public var renderFullWidth: Bool = false
     
-    init(children: [InlineNode], url: URL, tooltip: String?, fontSize: CGFloat, truncated: Bool = false) {
+    init(children: [InlineNode], url: URL, tooltip: String?, fontSize: CGFloat) {
         self.children = children
         self.url = url
         self.tooltip = tooltip
         self.fontSize = fontSize
-        self.truncated = truncated
     }
 }

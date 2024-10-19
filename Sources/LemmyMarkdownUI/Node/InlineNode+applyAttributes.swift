@@ -45,8 +45,6 @@ internal extension InlineNode {
             attributes.strikethroughStyle = .single
         case let .link(destination: url, _, children: _):
             attributes.link = URL(string: url)
-        case .truncationTerminator:
-            attributes.foregroundColor = configuration.secondaryColor
         default:
             break
         }

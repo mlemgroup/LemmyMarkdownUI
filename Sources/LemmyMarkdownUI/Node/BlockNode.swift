@@ -11,17 +11,13 @@ import cmark_lemmy
 public enum BlockNode: Hashable, Node {
     case blockquote(blocks: [BlockNode])
     case spoiler(title: String?, blocks: [BlockNode])
-    case bulletedList(isTight: Bool, items: [ListItemNode], truncatedRows: Int = 0)
-    case numberedList(isTight: Bool, start: Int, items: [ListItemNode], truncatedRows: Int = 0)
-    case codeBlock(fenceInfo: String?, content: String, truncatedRows: Int = 0)
+    case bulletedList(isTight: Bool, items: [ListItemNode])
+    case numberedList(isTight: Bool, start: Int, items: [ListItemNode])
+    case codeBlock(fenceInfo: String?, content: String)
     case paragraph(inlines: [InlineNode])
     case heading(level: HeadingLevel, inlines: [InlineNode])
-    case table(columnAlignments: [RawTableColumnAlignment], rows: [TableRowNode], truncatedRows: Int = 0)
+    case table(columnAlignments: [RawTableColumnAlignment], rows: [TableRowNode])
     case thematicBreak
-    
-    // Renders as an ellipsis. It can be inserted into the tree when the tree is truncated.
-    // This will never be created by the markdown parser.
-    case truncationTerminator
     
     internal var children: [any Node] {
         switch self {
@@ -33,9 +29,9 @@ public enum BlockNode: Hashable, Node {
             return inlines
         case let .spoiler(_, blocks: blocks):
             return blocks
-        case let .bulletedList(_, items: items, _):
+        case let .bulletedList(_, items: items):
             return items
-        case let .numberedList(_, _, items: items, _):
+        case let .numberedList(_, _, items: items):
             return items
         default:
             return []
@@ -71,80 +67,6 @@ public enum BlockNode: Hashable, Node {
             }
         }
         return children.images
-    }
-    
-    internal func truncate(data: TruncationData) -> BlockNode? {
-        switch self {
-        case let .blockquote(blocks):
-            return .blockquote(
-                blocks: blocks.truncate(data: data)
-            )
-        case let .spoiler(title, blocks):
-            data.linesRemaining -= 1
-            return .spoiler(title: title, blocks: blocks)
-        case let .bulletedList(isTight, items, _):
-            if data.linesRemaining < 2 { return nil }
-            let newItems = items.truncate(data: data)
-            let truncatedRows = data.hasInsertedTerminator ? 0 : items.count - newItems.count
-            if items.count != newItems.count {
-                data.hasInsertedTerminator = true
-            }
-            return .bulletedList(
-                isTight: isTight,
-                items: newItems,
-                truncatedRows: truncatedRows
-            )
-        case let .numberedList(isTight, start, items, _):
-            if data.linesRemaining < 2 { return nil }
-            let newItems = items.truncate(data: data)
-            let truncatedRows = data.hasInsertedTerminator ? 0 : items.count - newItems.count
-            if items.count != newItems.count {
-                data.hasInsertedTerminator = true
-            }
-            return .numberedList(
-                isTight: isTight,
-                start: start,
-                items: newItems,
-                truncatedRows: truncatedRows
-            )
-        case let .codeBlock(fenceInfo, content, _):
-            if data.linesRemaining < 2 { return nil }
-            let lines = content.split(separator: "\n")
-            let newLines = lines.prefix(data.linesRemaining)
-            data.linesRemaining -= newLines.count
-            let truncatedRows = data.hasInsertedTerminator ? 0 : lines.count - newLines.count
-            if newLines.count != lines.count {
-                data.hasInsertedTerminator = true
-            }
-            return .codeBlock(
-                fenceInfo: fenceInfo,
-                content: newLines.joined(separator: "\n"),
-                truncatedRows: truncatedRows
-            )
-        case let .paragraph(inlines):
-            return .paragraph(
-                inlines: inlines.truncate(data: data)
-            )
-        case let .heading(level, inlines):
-            return .heading(
-                level: level,
-                inlines: inlines.truncate(data: data)
-            )
-        case let .table(columnAlignments, rows, _):
-            if data.linesRemaining < 2 { return nil }
-            let newRows = rows.prefix(data.linesRemaining)
-            data.linesRemaining -= newRows.count
-            if data.linesRemaining <= 0 {
-                data.hasInsertedTerminator = true
-            }
-            return .table(
-                columnAlignments: columnAlignments,
-                rows: Array(newRows),
-                truncatedRows: rows.count - newRows.count
-            )
-        default:
-            return self
-        }
     }
 }
 

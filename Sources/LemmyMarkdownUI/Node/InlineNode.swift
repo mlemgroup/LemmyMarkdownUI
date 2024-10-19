@@ -18,11 +18,7 @@ public enum InlineNode: Hashable, Node {
     case `subscript`(children: [InlineNode])
     case strikethrough(children: [InlineNode])
     case link(destination: String, tooltip: String?, children: [InlineNode])
-    case image(source: String, tooltip: String?, children: [InlineNode], truncated: Bool = false)
-    
-    // Renders as an ellipsis. It can be inserted into the tree when the tree is truncated.
-    // This will never be created by the markdown parser.
-    case truncationTerminator
+    case image(source: String, tooltip: String?, children: [InlineNode])
     
     internal var children: [any Node] { inlineChildren }
     
@@ -40,7 +36,7 @@ public enum InlineNode: Hashable, Node {
             return children
         case let .link(_, _, children):
             return children
-        case let .image(_, _, children, _):
+        case let .image(_, _, children):
             return children
         default:
             return []
@@ -57,8 +53,6 @@ public enum InlineNode: Hashable, Node {
             return " "
         case .lineBreak:
             return "\n"
-        case .truncationTerminator:
-            return "..."
         default:
             return nil
         }
@@ -79,7 +73,7 @@ public enum InlineNode: Hashable, Node {
     
     public var images: [LinkData] {
         var ret: [LinkData] = .init()
-        if case let InlineNode.image(source, _, children, _) = self {
+        if case let InlineNode.image(source, _, children) = self {
             if let url = URL(string: source) {
                 ret.append(.init(title: children, url: url))
             }
