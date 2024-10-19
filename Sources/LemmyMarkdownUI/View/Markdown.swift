@@ -50,7 +50,7 @@ public struct Markdown: View {
                             configuration: configuration
                         )
                     case let .codeBlock(fenceInfo: _, content: content):
-                        codeBlock(content: content)
+                        CodeBlockView(content: content, configuration: configuration)
                     case .thematicBreak:
                         Rectangle()
                             .fill(Color(uiColor: .secondarySystemBackground))
@@ -107,17 +107,6 @@ public struct Markdown: View {
                     .frame(width: 5)
                     .frame(maxHeight: .infinity)
             }
-    }
-    
-    @ViewBuilder
-    func codeBlock(content: String) -> some View {
-        ScrollView(.horizontal) {
-            Text(content.trimmingCharacters(in: .newlines))
-                .font(Font(configuration.font).monospaced())
-                .padding(10)
-        }
-        .background(configuration.codeBackgroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
     
     @ViewBuilder
