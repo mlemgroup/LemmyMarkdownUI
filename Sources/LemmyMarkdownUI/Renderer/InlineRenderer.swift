@@ -105,12 +105,12 @@ internal class InlineRenderer {
                 var attributes = attributes
                 attributes.foregroundColor = configuration.secondaryColor
                 components.append(.init("[Table]", attributes: attributes), indent: indent)
-            case let .codeBlock(fenceInfo: _, content: content, truncatedRows: _):
+            case let .codeBlock(fenceInfo: _, content: content):
                 var attributes = attributes
                 attributes.font = .body.monospaced()
                 attributes.foregroundColor = configuration.secondaryColor
                 components.append(.init(content, attributes: attributes), indent: indent)
-            case let .bulletedList(isTight: _, items: items, truncatedRows: _):
+            case let .bulletedList(isTight: _, items: items):
                 var bulletAttributes = attributes
                 bulletAttributes.foregroundColor = configuration.secondaryColor
                 for (index, item) in items.enumerated() {
@@ -122,7 +122,7 @@ internal class InlineRenderer {
                     )
                     components.newline(index == items.count - 1 ? 2 : 1)
                 }
-            case let .numberedList(isTight: _, start: start, items: items, truncatedRows: _):
+            case let .numberedList(isTight: _, start: start, items: items):
                 var bulletAttributes = attributes
                 bulletAttributes.foregroundColor = configuration.secondaryColor
                 for (index, item) in items.enumerated() {
@@ -161,7 +161,7 @@ internal class InlineRenderer {
                 )
             } else {
                 switch node {
-                case let .image(source: source, tooltip: tooltip, children: children, truncated):
+                case let .image(source: source, tooltip: tooltip, children: children):
                     if let url = URL(string: source) {
                         components.append(.text(currentText))
                         currentText = .init()
@@ -169,8 +169,7 @@ internal class InlineRenderer {
                             children: children,
                             url: url,
                             tooltip: tooltip,
-                            fontSize: attributes.uiKit.font?.pointSize ?? UIFont.bodyPointSize,
-                            truncated: truncated
+                            fontSize: attributes.uiKit.font?.pointSize ?? UIFont.bodyPointSize
                         )
                         images.append(attatchment)
                         components.append(.image(attatchment))
