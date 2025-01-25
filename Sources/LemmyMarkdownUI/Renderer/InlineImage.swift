@@ -15,7 +15,14 @@ public class InlineImage {
     public let url: URL
     public let fontSize: CGFloat
     public var image: Image?
-    public var renderFullWidth: Bool = false
+    
+    public var renderFullWidth: Bool {
+        // Only custom emojis should be displayed inline. Custom emojis have tooltips.
+        // People are unlikely to use tooltips in any other circumstances, so images
+        // with tooltips are displayed inline. I haven't found a better way to test for
+        // a custom emoji.
+        tooltip == nil
+    }
     
     init(children: [InlineNode], url: URL, tooltip: String?, fontSize: CGFloat) {
         self.children = children
