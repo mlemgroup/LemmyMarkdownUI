@@ -11,7 +11,7 @@ public struct MarkdownConfiguration {
     public var inlineImageLoader: (InlineImage) async -> Void
     @ViewBuilder public var imageBlockView: (_ image: InlineImage) -> AnyView
     
-    public var allowInlineImages: Bool
+    public var imagePresentationMode: ImagePresentationMode
     public var stubSpoilers: Bool
     public var wrapCodeBlockLines: Bool
     public var spoilerStubIcon: String
@@ -29,7 +29,7 @@ public struct MarkdownConfiguration {
     public var codeFontScaleFactor: Double
     
     public init(
-        allowInlineImages: Bool = true,
+        imagePresentationMode: ImagePresentationMode = .contextual,
         inlineImageLoader: @escaping (InlineImage) async -> Void,
         imageBlockView: @escaping (_: InlineImage) -> AnyView,
         stubSpoilers: Bool = false,
@@ -47,7 +47,7 @@ public struct MarkdownConfiguration {
         font: UIFont.TextStyle = .body,
         codeFontScaleFactor: Double = 1
     ) {
-        self.allowInlineImages = allowInlineImages
+        self.imagePresentationMode = imagePresentationMode
         
         self.inlineImageLoader = inlineImageLoader
         self.imageBlockView = imageBlockView
@@ -75,4 +75,10 @@ public struct MarkdownConfiguration {
         new.font = font
         return new
     }
+}
+
+public enum ImagePresentationMode {
+    case block, inline
+    /// Images with tooltips are displayed inline, all others are displayed as blocks.
+    case contextual
 }

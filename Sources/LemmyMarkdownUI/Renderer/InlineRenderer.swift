@@ -48,25 +48,27 @@ internal class InlineRenderer {
     var components: [Component] = .init()
     var images: [InlineImage] = .init()
     
+    private let configuration: MarkdownConfiguration
     private var indent: Int = 0
     private var currentText: AttributedString = .init()
     private var count = 0
     
     init(inlines: [InlineNode], configuration: MarkdownConfiguration) {
-        renderInlines(inlines: inlines, configuration: configuration)
+        self.configuration = configuration
+        renderInlines(inlines: inlines)
         if !currentText.characters.isEmpty {
             components.append(.text(currentText))
         }
     }
     
     init(blocks: [BlockNode], configuration: MarkdownConfiguration) {
-        renderBlocks(blocks: blocks, configuration: configuration, withNewlines: true)
+        self.configuration = configuration
+        renderBlocks(blocks: blocks, withNewlines: true)
     }
     
     private func renderBlocks(
         blocks: [BlockNode],
         attributes: AttributeContainer = .init(),
-        configuration: MarkdownConfiguration,
         withNewlines: Bool = false
     ) {
         count += 1
@@ -78,24 +80,21 @@ internal class InlineRenderer {
             case let .paragraph(inlines):
                 renderInlines(
                     inlines: inlines,
-                    attributes: attributes,
-                    configuration: configuration
+                    attributes: attributes
                 )
             case let .heading(level: level, inlines: inlines):
                 var attributes = attributes
                 attributes.font = level.font
                 renderInlines(
                     inlines: inlines,
-                    attributes: attributes,
-                    configuration: configuration
+                    attributes: attributes
                 )
             case let .blockquote(blocks: blocks):
                 var attributes = attributes
                 attributes.foregroundColor = configuration.quoteColor
                 renderBlocks(
                     blocks: blocks,
-                    attributes: attributes,
-                    configuration: configuration
+                    attributes: attributes
                 )
             case let .spoiler(title: title, blocks: _):
                 var attributes = attributes
@@ -117,8 +116,7 @@ internal class InlineRenderer {
                     components.append(.init("- ", attributes: bulletAttributes), indent: indent)
                     renderBlocks(
                         blocks: item.blocks,
-                        attributes: attributes,
-                        configuration: configuration
+                        attributes: attributes
                     )
                     components.newline(index == items.count - 1 ? 2 : 1)
                 }
@@ -129,8 +127,7 @@ internal class InlineRenderer {
                     components.append(.init("\(start + index). ", attributes: bulletAttributes), indent: indent)
                     renderBlocks(
                         blocks: item.blocks,
-                        attributes: attributes,
-                        configuration: configuration
+                        attributes: attributes
                     )
                     components.newline(index == items.count - 1 ? 2 : 1)
                 }
@@ -149,7 +146,6 @@ internal class InlineRenderer {
     private func renderInlines(
         inlines: [InlineNode],
         attributes: AttributeContainer = .init(),
-        configuration: MarkdownConfiguration,
         isRoot: Bool = true
     ) {
         for node in inlines {
@@ -178,7 +174,6 @@ internal class InlineRenderer {
                     renderInlines(
                         inlines: node.inlineChildren,
                         attributes: node.applyAttributes(attributes, configuration: configuration),
-                        configuration: configuration,
                         isRoot: false
                     )
                 }
@@ -219,17 +214,23 @@ extension [InlineRenderer.Component] {
         append(.text(AttributedString.init(String(repeating: " ", count: indent * 4)) + value))
     }
     
-    func grouped() -> [[InlineRenderer.Component]] {
+    func grouped(configuration: MarkdownConfiguration) -> [[InlineRenderer.Component]] {
         var output: [[InlineRenderer.Component]] = []
         var current: [InlineRenderer.Component] = []
         for component in self {
             switch component {
             case let .image(image):
-                if image.renderFullWidth {
+                let presentationMode: FinalImagePresentationMode = switch configuration.imagePresentationMode {
+                case .contextual: image.renderFullWidth ? .block : .inline
+                case .block: .block
+                case .inline : .inline
+                }
+                switch presentationMode {
+                case .block:
                     output.append(current)
                     output.append([component])
                     current = []
-                } else {
+                case .inline:
                     current.append(component)
                 }
             case .text:
@@ -241,4 +242,8 @@ extension [InlineRenderer.Component] {
         }
         return output
     }
+}
+
+private enum FinalImagePresentationMode {
+    case block, inline
 }
