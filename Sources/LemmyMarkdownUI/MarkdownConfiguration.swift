@@ -8,8 +8,8 @@
 import SwiftUI
 
 public struct MarkdownConfiguration {
-    public var inlineImageLoader: (InlineImage) async -> Void
-    @ViewBuilder public var imageBlockView: (_ image: InlineImage) -> AnyView
+    public var inlineImageLoader: (MarkdownImage) async -> Void
+    @ViewBuilder public var imageBlockView: (_ image: MarkdownImage) -> AnyView
     
     public var imagePresentationMode: ImagePresentationMode
     public var stubSpoilers: Bool
@@ -30,8 +30,8 @@ public struct MarkdownConfiguration {
     
     public init(
         imagePresentationMode: ImagePresentationMode = .contextual,
-        inlineImageLoader: @escaping (InlineImage) async -> Void,
-        imageBlockView: @escaping (_: InlineImage) -> AnyView,
+        inlineImageLoader: @escaping (MarkdownImage) async -> Void,
+        imageBlockView: @escaping (_: MarkdownImage) -> AnyView,
         stubSpoilers: Bool = false,
         wrapCodeBlockLines: Bool = true,
         spoilerStubIcon: String = "eye.slash.fill",

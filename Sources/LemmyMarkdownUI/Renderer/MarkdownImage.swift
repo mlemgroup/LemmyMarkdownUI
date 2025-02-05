@@ -9,12 +9,13 @@ import Foundation
 import SwiftUI
 
 @Observable
-public class InlineImage {
+public class MarkdownImage {
     public let children: [InlineNode]
     public let tooltip: String?
     public let url: URL
     public let fontSize: CGFloat
     public var image: Image?
+    public var parentLink: URL?
     
     public var renderFullWidth: Bool {
         // Only custom emojis should be displayed inline. Custom emojis have tooltips.
@@ -24,10 +25,21 @@ public class InlineImage {
         tooltip == nil
     }
     
-    init(children: [InlineNode], url: URL, tooltip: String?, fontSize: CGFloat) {
+    init(
+        children: [InlineNode],
+        url: URL,
+        tooltip: String?,
+        fontSize: CGFloat,
+        parentLink: String?
+    ) {
         self.children = children
         self.url = url
         self.tooltip = tooltip
         self.fontSize = fontSize
+        if let parentLink, let url = URL(string: parentLink) {
+            self.parentLink = url
+        } else {
+            self.parentLink = nil
+        }
     }
 }

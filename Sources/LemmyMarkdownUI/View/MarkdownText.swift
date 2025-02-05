@@ -11,7 +11,7 @@ import SwiftUI
 public struct MarkdownText: View {
     
     private var components: [InlineRenderer.Component]
-    private var images: [InlineImage]
+    private var images: [MarkdownImage]
     private var configuration: MarkdownConfiguration
     
     public init(

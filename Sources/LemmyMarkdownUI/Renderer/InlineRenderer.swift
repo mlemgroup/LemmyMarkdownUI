@@ -15,7 +15,7 @@ internal extension UIFont {
 internal class InlineRenderer {
     enum Component: Hashable {
         case text(AttributedString)
-        case image(InlineImage)
+        case image(MarkdownImage)
         
         static func newLine(_ count: Int = 1) -> Self {
             .text(.init(.init(repeating: "\n", count: count)))
@@ -46,7 +46,7 @@ internal class InlineRenderer {
     }
     
     var components: [Component] = .init()
-    var images: [InlineImage] = .init()
+    var images: [MarkdownImage] = .init()
     
     private let configuration: MarkdownConfiguration
     private var indent: Int = 0
@@ -146,7 +146,8 @@ internal class InlineRenderer {
     private func renderInlines(
         inlines: [InlineNode],
         attributes: AttributeContainer = .init(),
-        isRoot: Bool = true
+        isRoot: Bool = true,
+        parentLink: String? = nil
     ) {
         for node in inlines {
             if let string = node.string {
@@ -161,15 +162,23 @@ internal class InlineRenderer {
                     if let url = URL(string: source) {
                         components.append(.text(currentText))
                         currentText = .init()
-                        let attatchment = InlineImage(
+                        let attatchment = MarkdownImage(
                             children: children,
                             url: url,
                             tooltip: tooltip,
-                            fontSize: attributes.uiKit.font?.pointSize ?? UIFont.bodyPointSize
+                            fontSize: attributes.uiKit.font?.pointSize ?? UIFont.bodyPointSize,
+                            parentLink: parentLink
                         )
                         images.append(attatchment)
                         components.append(.image(attatchment))
                     }
+                case let .link(destination: destination, tooltip: _, children: inlineChildren):
+                    renderInlines(
+                        inlines: inlineChildren,
+                        attributes: node.applyAttributes(attributes, configuration: configuration),
+                        isRoot: false,
+                        parentLink: destination
+                    )
                 default:
                     renderInlines(
                         inlines: node.inlineChildren,
