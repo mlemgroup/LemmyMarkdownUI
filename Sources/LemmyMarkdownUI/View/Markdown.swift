@@ -31,56 +31,48 @@ public struct Markdown: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        MarkdownLayout {
             ForEach(Array(blocks.enumerated()), id: \.offset) { index, block in
                 Group {
                     switch block {
                     case let .paragraph(inlines: inlines):
-                        inlineMarkdown(inlines)
+                        MarkdownText(inlines, configuration: configuration)
+                            .markdownMinimumSpacing(16)
                     case let .heading(level: level, inlines: inlines):
                         heading(level: level, inlines: inlines)
                     case let .blockquote(blocks: blocks):
                         blockQuote(blocks: blocks)
                     case let .table(columnAlignments: columnAlignments, rows: rows):
                         TableView(columnAlignments: columnAlignments, rows: rows, configuration: configuration)
+                            .markdownMinimumSpacing(16)
                     case let .spoiler(title: title, blocks: blocks):
                         SpoilerView(
                             title: title,
                             blocks: blocks,
                             configuration: configuration
                         )
+                        .markdownMinimumSpacing(16)
                     case let .codeBlock(fenceInfo: _, content: content):
                         CodeBlockView(content: content, configuration: configuration)
+                            .markdownMinimumSpacing(16)
                     case .thematicBreak:
                         Rectangle()
                             .fill(Color(uiColor: .secondarySystemBackground))
                             .frame(height: 3)
                             .frame(maxWidth: .infinity)
+                            .markdownMinimumSpacing(16)
                     case let .bulletedList(isTight: _, items: items):
                         bulletedList(items: items)
+                            .markdownMinimumSpacing(16)
                     case let .numberedList(isTight: _, start: start, items: items):
                         numberedList(items: items, startIndex: start)
+                            .markdownMinimumSpacing(16)
                     }
                 }
-                .padding(.top, (index == 0) ? 0 : blockPadding(block, edge: .top))
-                .padding(.bottom, (index == blocks.count - 1) ? 0 : blockPadding(block, edge: .bottom))
             }
         }
         .foregroundStyle(configuration.primaryColor)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .fixedSize(horizontal: false, vertical: true)
-    }
-    
-    func blockPadding(_ block: BlockNode, edge: VerticalEdge) -> CGFloat {
-        return 8
-    }
-    
-    @ViewBuilder
-    func inlineMarkdown(_ inlines: [InlineNode]) -> some View {
-        MarkdownText(
-            inlines,
-            configuration: configuration
-        )
     }
     
     @ViewBuilder
@@ -95,6 +87,7 @@ public struct Markdown: View {
                     Divider()
                 }
             }
+            .markdownMinimumSpacing(16)
     }
     
     @ViewBuilder
@@ -107,6 +100,7 @@ public struct Markdown: View {
                     .frame(width: 5)
                     .frame(maxHeight: .infinity)
             }
+            .markdownMinimumSpacing(16)
     }
     
     @ViewBuilder
