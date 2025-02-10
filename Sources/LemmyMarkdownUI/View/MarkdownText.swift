@@ -45,22 +45,18 @@ public struct MarkdownText: View {
     }
     
     public var body: some View {
+        let groupedComponents = components.grouped(configuration: configuration)
         Group {
-            let groupedComponents = components.grouped(configuration: configuration)
-            if groupedComponents.count == 1, let group = groupedComponents.first {
-                group.text(configuration: configuration)
-            } else {
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(Array(groupedComponents.enumerated()), id: \.offset) { _, group in
-                        if group.count == 1, let item = group.first {
-                            if case let .image(image) = item {
-                                configuration.imageBlockView(image)
-                            } else {
-                                group.text(configuration: configuration)
-                            }
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(Array(groupedComponents.enumerated()), id: \.offset) { _, group in
+                    if group.count == 1, let item = group.first {
+                        if case let .image(image) = item {
+                            configuration.imageBlockView(image)
                         } else {
                             group.text(configuration: configuration)
                         }
+                    } else {
+                        group.text(configuration: configuration)
                     }
                 }
             }

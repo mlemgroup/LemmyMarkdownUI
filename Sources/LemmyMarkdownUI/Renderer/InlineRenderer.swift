@@ -56,9 +56,6 @@ internal class InlineRenderer {
     init(inlines: [InlineNode], configuration: MarkdownConfiguration) {
         self.configuration = configuration
         renderInlines(inlines: inlines)
-        if !currentText.characters.isEmpty {
-            components.append(.text(currentText))
-        }
     }
     
     init(blocks: [BlockNode], configuration: MarkdownConfiguration) {
@@ -160,8 +157,7 @@ internal class InlineRenderer {
                 switch node {
                 case let .image(source: source, tooltip: tooltip, children: children):
                     if let url = URL(string: source) {
-                        components.append(.text(currentText))
-                        currentText = .init()
+                        commitCurrentText()
                         let attatchment = MarkdownImage(
                             children: children,
                             url: url,
@@ -189,6 +185,12 @@ internal class InlineRenderer {
             }
         }
         if isRoot {
+            commitCurrentText()
+        }
+    }
+    
+    private func commitCurrentText() {
+        if !currentText.characters.isEmpty {
             components.append(currentText, indent: indent)
             currentText = .init()
         }
@@ -236,7 +238,9 @@ extension [InlineRenderer.Component] {
                 }
                 switch presentationMode {
                 case .block:
-                    output.append(current)
+                    if !current.isEmpty {
+                        output.append(current)
+                    }
                     output.append([component])
                     current = []
                 case .inline:
