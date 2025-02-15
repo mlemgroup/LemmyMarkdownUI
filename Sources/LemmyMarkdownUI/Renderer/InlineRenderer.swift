@@ -96,11 +96,11 @@ internal class InlineRenderer {
             case let .spoiler(title: title, blocks: _):
                 var attributes = attributes
                 attributes.foregroundColor = configuration.secondaryColor
-                components.append(.init("[Spoiler] \(title ?? "")", attributes: attributes), indent: indent)
+                components.append(.init("[\(configuration.spoilerLabel)] \(title ?? "")", attributes: attributes), indent: indent)
             case .table:
                 var attributes = attributes
                 attributes.foregroundColor = configuration.secondaryColor
-                components.append(.init("[Table]", attributes: attributes), indent: indent)
+                components.append(.init("[\(configuration.tableLabel)]", attributes: attributes), indent: indent)
             case let .codeBlock(fenceInfo: _, content: content):
                 var attributes = attributes
                 attributes.font = .body.monospaced()
@@ -175,6 +175,10 @@ internal class InlineRenderer {
                         isRoot: false,
                         parentLink: destination
                     )
+                case .censored:
+                    currentText = currentText + AttributedString(
+                        " \(configuration.censorLabel) ",
+                        attributes: node.applyAttributes(attributes, configuration: configuration))
                 default:
                     renderInlines(
                         inlines: node.inlineChildren,

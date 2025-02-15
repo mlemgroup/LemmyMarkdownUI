@@ -18,23 +18,17 @@ internal extension InlineNode {
         attributes.uiKit.font = font
         switch self {
         case .emphasis:
-            attributes.uiKit.font = UIFont(
-                descriptor: font.fontDescriptor.withSymbolicTraits(
-                    font.fontDescriptor.symbolicTraits.union(.traitItalic)
-                )!,
-                size: font.pointSize
-            )
+            attributes.uiKit.font = font.unionWithTrait(.traitItalic)
         case .strong:
-            attributes.uiKit.font = UIFont(
-                descriptor: font.fontDescriptor.withSymbolicTraits(
-                    font.fontDescriptor.symbolicTraits.union(.traitBold)
-                )!,
-                size: font.pointSize
-            )
+            attributes.uiKit.font = font.unionWithTrait(.traitBold)
         case .code:
             font = font.withSize(font.pointSize * configuration.codeFontScaleFactor)
             attributes.font = Font(font).monospaced()
             attributes.backgroundColor = configuration.codeBackgroundColor
+        case .censored:
+            attributes.uiKit.font = font.unionWithTrait(.traitItalic)
+            attributes.backgroundColor = configuration.censorColor.opacity(0.15)
+            attributes.foregroundColor = configuration.censorColor
         case .superscript:
             let size = UIFont.bodyPointSize / 2
             attributes.uiKit.font = font.withSize(size)
@@ -50,5 +44,16 @@ internal extension InlineNode {
             break
         }
         return attributes
+    }
+}
+
+private extension UIFont {
+    func unionWithTrait(_ traits: UIFontDescriptor.SymbolicTraits) -> UIFont {
+        .init(
+            descriptor: fontDescriptor.withSymbolicTraits(
+                fontDescriptor.symbolicTraits.union(traits)
+            )!,
+            size: pointSize
+        )
     }
 }

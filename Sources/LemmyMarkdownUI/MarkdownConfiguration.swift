@@ -12,16 +12,18 @@ public struct MarkdownConfiguration {
     @ViewBuilder public var imageBlockView: (_ image: MarkdownImage) -> AnyView
     
     public var imagePresentationMode: ImagePresentationMode
-    public var stubSpoilers: Bool
     public var wrapCodeBlockLines: Bool
-    public var spoilerStubIcon: String
-    public var truncationTerminatorText: String?
+    
+    public var spoilerLabel: String
+    public var tableLabel: String
+    public var censorLabel: String
     
     public var primaryColor: Color
     public var secondaryColor: Color
     public var spoilerHeaderBackgroundColor: Color
     public var spoilerOutlineColor: Color
     public var codeBackgroundColor: Color
+    public var censorColor: Color
     public var quoteColor: Color
     public var quoteBarColor: Color
     public var unloadedImageIcon: String
@@ -32,16 +34,17 @@ public struct MarkdownConfiguration {
         imagePresentationMode: ImagePresentationMode = .contextual,
         inlineImageLoader: @escaping (MarkdownImage) async -> Void,
         imageBlockView: @escaping (_: MarkdownImage) -> AnyView,
-        stubSpoilers: Bool = false,
         wrapCodeBlockLines: Bool = true,
-        spoilerStubIcon: String = "eye.slash.fill",
         unloadedImageIcon: String = "photo",
-        truncationTerminatorText: String? = nil,
+        spoilerLabel: String = "Spoiler",
+        tableLabel: String = "Table",
+        censorLabel: String = "Censored",
         primaryColor: Color = .primary,
         secondaryColor: Color = .secondary,
         spoilerHeaderBackgroundColor: Color = .init(uiColor: .secondarySystemBackground),
         spoilerOutlineColor: Color = Color(uiColor: .tertiaryLabel),
         codeBackgroundColor: Color = .init(uiColor: .secondarySystemBackground),
+        censorColor: Color = .red,
         quoteBarColor: Color = .init(uiColor: .tertiaryLabel),
         quoteColor: Color = .secondary,
         font: UIFont.TextStyle = .body,
@@ -52,17 +55,19 @@ public struct MarkdownConfiguration {
         self.inlineImageLoader = inlineImageLoader
         self.imageBlockView = imageBlockView
         
-        self.stubSpoilers = stubSpoilers
         self.wrapCodeBlockLines = wrapCodeBlockLines
-        self.spoilerStubIcon = spoilerStubIcon
         self.unloadedImageIcon = unloadedImageIcon
-        self.truncationTerminatorText = truncationTerminatorText
+        
+        self.spoilerLabel = spoilerLabel
+        self.tableLabel = tableLabel
+        self.censorLabel = censorLabel
         
         self.primaryColor = primaryColor
         self.secondaryColor = secondaryColor
         self.spoilerHeaderBackgroundColor = spoilerHeaderBackgroundColor
         self.spoilerOutlineColor = spoilerOutlineColor
         self.codeBackgroundColor = codeBackgroundColor
+        self.censorColor = censorColor
         self.quoteBarColor = quoteBarColor
         self.quoteColor = quoteColor
         
