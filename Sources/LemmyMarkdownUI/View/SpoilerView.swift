@@ -23,7 +23,7 @@ internal struct SpoilerView: View {
         if let title {
             self.titleInlines = .init(title)
         } else {
-            self.titleInlines = [.text("Spoiler")]
+            self.titleInlines = [.text(configuration.spoilerLabel)]
         }
         self.blocks = blocks
         self.configuration = configuration
@@ -36,20 +36,6 @@ internal struct SpoilerView: View {
     }
     
     var body: some View {
-        if configuration.stubSpoilers {
-            HStack {
-                Image(systemName: configuration.spoilerStubIcon)
-                MarkdownText(
-                    titleInlines,
-                    configuration: configuration
-                )
-            }
-        } else {
-            content
-        }
-    }
-    
-    var content: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
                 Image(systemName: "chevron.right")

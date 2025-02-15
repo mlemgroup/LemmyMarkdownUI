@@ -19,6 +19,7 @@ public enum InlineNode: Hashable, Node {
     case strikethrough(children: [InlineNode])
     case link(destination: String, tooltip: String?, children: [InlineNode])
     case image(source: String, tooltip: String?, children: [InlineNode])
+    case censored
     
     internal var children: [any Node] { inlineChildren }
     
@@ -105,7 +106,14 @@ internal extension InlineNode {
         case .code:
             self = .code(unsafeNode.literal ?? "")
         case .emphasis:
-            self = .emphasis(children: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:)))
+            let children = unsafeNode.children.compactMap(InlineNode.init(unsafeNode:))
+            // This isn't currently localized on the backend; it's always in English
+            // https://github.com/LemmyNet/lemmy/blob/d1eff9084b6c7fe2629699a12452c38fe5d84cf7/crates/utils/src/utils/slurs.rs#L6
+            if children == [.text("removed")] {
+                self = .censored
+            } else {
+                self = .emphasis(children: children)
+            }
         case .strong:
             self = .strong(children: unsafeNode.children.compactMap(InlineNode.init(unsafeNode:)))
         case .superscript:
