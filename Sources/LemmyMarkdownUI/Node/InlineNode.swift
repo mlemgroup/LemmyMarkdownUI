@@ -44,6 +44,27 @@ public enum InlineNode: Hashable, Node {
         }
     }
     
+    internal func mutatingChildren(_ mutator: ([InlineNode]) -> [InlineNode]) -> InlineNode {
+        switch self {
+        case let .emphasis(children):
+            return .emphasis(children: mutator(children))
+        case let .strong(children):
+            return .strong(children: mutator(children))
+        case let .superscript(children):
+            return .superscript(children: mutator(children))
+        case let .subscript(children):
+            return .subscript(children: mutator(children))
+        case let .strikethrough(children):
+            return .strikethrough(children: mutator(children))
+        case let .link(destination, tooltip, children):
+            return .link(destination: destination, tooltip: tooltip, children: mutator(children))
+        case let .image(source, tooltip, children):
+            return .image(source: source, tooltip: tooltip, children: mutator(children))
+        default:
+            return self
+        }
+    }
+    
     internal var string: String? {
         switch self {
         case let .text(string):

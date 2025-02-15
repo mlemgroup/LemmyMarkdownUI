@@ -170,7 +170,7 @@ internal class InlineRenderer {
                     }
                 case let .link(destination: destination, tooltip: _, children: inlineChildren):
                     renderInlines(
-                        inlines: inlineChildren,
+                        inlines: inlineChildren.map(insertWordJoiner),
                         attributes: node.applyAttributes(attributes, configuration: configuration),
                         isRoot: false,
                         parentLink: destination
@@ -198,6 +198,19 @@ internal class InlineRenderer {
             components.append(currentText, indent: indent)
             currentText = .init()
         }
+    }
+}
+
+private func insertWordJoiner(_ inline: InlineNode) -> InlineNode {
+    switch inline {
+    case let .text(string):
+        if string.starts(with: "!") {
+            return .text("!\u{2060}"+string.dropFirst())
+        } else {
+            return inline
+        }
+    default:
+        return inline.mutatingChildren { $0.map(insertWordJoiner) }
     }
 }
 
