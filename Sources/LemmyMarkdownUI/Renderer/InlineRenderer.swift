@@ -248,19 +248,13 @@ extension [InlineRenderer.Component] {
         for component in self {
             switch component {
             case let .image(image):
-                let presentationMode: FinalImagePresentationMode = switch configuration.imagePresentationMode {
-                case .contextual: image.renderFullWidth ? .block : .inline
-                case .block: .block
-                case .inline : .inline
-                }
-                switch presentationMode {
-                case .block:
+                if image.renderFullWidth(in: configuration) {
                     if !current.isEmpty {
                         output.append(current)
                     }
                     output.append([component])
                     current = []
-                case .inline:
+                } else {
                     current.append(component)
                 }
             case .text:
@@ -272,8 +266,4 @@ extension [InlineRenderer.Component] {
         }
         return output
     }
-}
-
-private enum FinalImagePresentationMode {
-    case block, inline
 }
