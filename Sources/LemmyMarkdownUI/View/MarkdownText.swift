@@ -50,7 +50,7 @@ public struct MarkdownText: View {
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(Array(groupedComponents.enumerated()), id: \.offset) { _, group in
                     if group.count == 1, let item = group.first {
-                        if case let .image(image) = item {
+                        if case let .image(image) = item, image.renderFullWidth(in: configuration) {
                             configuration.imageBlockView(image)
                         } else {
                             group.text(configuration: configuration)

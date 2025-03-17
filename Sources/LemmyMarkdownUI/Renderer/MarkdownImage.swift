@@ -17,12 +17,16 @@ public class MarkdownImage {
     public var image: Image?
     public var parentLink: URL?
     
-    public var renderFullWidth: Bool {
+    public func renderFullWidth(in configuration: MarkdownConfiguration) -> Bool {
         // Only custom emojis should be displayed inline. Custom emojis have tooltips.
         // People are unlikely to use tooltips in any other circumstances, so images
         // with tooltips are displayed inline. I haven't found a better way to test for
         // a custom emoji.
-        tooltip == nil
+        switch configuration.imagePresentationMode {
+        case .block: true
+        case .inline: false
+        case .contextual: tooltip == nil
+        }
     }
     
     init(
