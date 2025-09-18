@@ -20,7 +20,7 @@ internal struct CodeBlockView: View {
     @Environment(\.colorScheme) var colorScheme
 
     init(content: String, language: String? = nil, configuration: MarkdownConfiguration) {
-        self.content = content
+        self.content = content.trimmingCharacters(in: .newlines)
         self.language = language
         self.configuration = configuration
     }
@@ -52,7 +52,7 @@ internal struct CodeBlockView: View {
                 .font(codeFont)
                 .padding(10)
         } else {
-            Text(content.trimmingCharacters(in: .newlines))
+            Text(content)
                 .font(codeFont)
                 .foregroundColor(configuration.primaryColor)
                 .padding(10)
@@ -68,6 +68,7 @@ internal struct CodeBlockView: View {
     func performHighlighting() async {
         guard configuration.enableSyntaxHighlighting else { return }
         guard !isHighlighting else { return }
+        guard language != nil else { return }
 
         isHighlighting = true
         highlightTask = Task.detached {
@@ -75,16 +76,9 @@ internal struct CodeBlockView: View {
                 let highlight = Highlight()
                 let colors: HighlightColors = colorScheme == .dark ? .dark(.github) : .light(.github)
 
-                if let lang = language, !lang.isEmpty {
-                    let highlighted = try await highlight.attributedText(content, language: lang, colors: colors)
-                    await MainActor.run {
-                        self.highlightedText = highlighted
-                    }
-                } else {
-                    let highlighted = try await highlight.attributedText(content, colors: colors)
-                    await MainActor.run {
-                        self.highlightedText = highlighted
-                    }
+                let highlighted = try await highlight.attributedText(content, language: language!, colors: colors)
+                await MainActor.run {
+                    self.highlightedText = highlighted
                 }
             } catch {
                 print("Syntax highlighting failed: \(error)")
