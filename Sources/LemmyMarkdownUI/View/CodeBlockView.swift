@@ -70,7 +70,7 @@ internal struct CodeBlockView: View {
         guard !isHighlighting else { return }
 
         isHighlighting = true
-        highlightTask = Task {
+        highlightTask = Task.detached {
             do {
                 let highlight = Highlight()
                 let colors: HighlightColors = colorScheme == .dark ? .dark(.github) : .light(.github)
