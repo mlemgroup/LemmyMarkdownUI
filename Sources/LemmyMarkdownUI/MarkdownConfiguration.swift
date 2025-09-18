@@ -29,6 +29,8 @@ public struct MarkdownConfiguration {
     public var unloadedImageIcon: String
     public var font: UIFont
     public var codeFontScaleFactor: Double
+
+    public var enableSyntaxHighlighting: Bool
     
     public init(
         imagePresentationMode: ImagePresentationMode = .contextual,
@@ -48,7 +50,8 @@ public struct MarkdownConfiguration {
         quoteBarColor: Color = .init(uiColor: .tertiaryLabel),
         quoteColor: Color = .secondary,
         font: UIFont.TextStyle = .body,
-        codeFontScaleFactor: Double = 1
+        codeFontScaleFactor: Double = 1,
+        enableSyntaxHighlighting: Bool = true
     ) {
         self.imagePresentationMode = imagePresentationMode
         
@@ -73,6 +76,8 @@ public struct MarkdownConfiguration {
         
         self.font = .preferredFont(forTextStyle: font)
         self.codeFontScaleFactor = codeFontScaleFactor
+
+        self.enableSyntaxHighlighting = enableSyntaxHighlighting
     }
     
     internal func withFont(_ font: UIFont) -> Self {
