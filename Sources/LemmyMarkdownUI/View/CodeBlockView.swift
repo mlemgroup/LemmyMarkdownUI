@@ -89,7 +89,9 @@ internal struct CodeBlockView: View {
             } catch {
                 print("Syntax highlighting failed: \(error)")
             }
-            isHighlighting = false
+            await MainActor.run {
+                isHighlighting = false
+            }
         }
     }
 }
