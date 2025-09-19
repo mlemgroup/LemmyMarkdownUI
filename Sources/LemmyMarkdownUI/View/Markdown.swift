@@ -52,8 +52,13 @@ public struct Markdown: View {
                             configuration: configuration
                         )
                         .markdownMinimumSpacing(16)
-                    case let .codeBlock(fenceInfo: _, content: content):
-                        CodeBlockView(content: content, configuration: configuration)
+                    case let .codeBlock(fenceInfo: fenceInfo, content: content):
+                        let language = fenceInfo?.split(separator: " ").first.map(String.init)
+                        CodeBlockView(
+                            content: content,
+                            language: language?.isEmpty == true ? nil : language,
+                            configuration: configuration
+                        )
                             .markdownMinimumSpacing(16)
                     case .thematicBreak:
                         Rectangle()
