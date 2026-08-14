@@ -14,8 +14,6 @@ internal struct CodeBlockView: View {
     let configuration: MarkdownConfiguration
 
     @State private var highlightedText: AttributedString?
-    @State private var isHighlighting = false
-    @State private var highlightTask: Task<Void, Never>?
 
     @Environment(\.colorScheme) var colorScheme
 
@@ -37,10 +35,7 @@ internal struct CodeBlockView: View {
         .background(configuration.codeBackgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .task(id: colorScheme) {
-            await performHighlighting()
-        }
-        .onDisappear {
-            highlightTask?.cancel()
+            await performHighlighting(for: colorScheme)
         }
     }
 
@@ -65,27 +60,17 @@ internal struct CodeBlockView: View {
         ).monospaced()
     }
 
-    func performHighlighting() async {
+    func performHighlighting(for scheme: ColorScheme) async {
         guard configuration.enableSyntaxHighlighting else { return }
-        guard !isHighlighting else { return }
-        guard language != nil else { return }
-
-        isHighlighting = true
-        highlightTask = Task.detached {
-            do {
-                let highlight = Highlight()
-                let colors: HighlightColors = colorScheme == .dark ? .dark(.github) : .light(.github)
-
-                let highlighted = try await highlight.attributedText(content, language: language!, colors: colors)
-                await MainActor.run {
-                    self.highlightedText = highlighted
-                }
-            } catch {
-                print("Syntax highlighting failed: \(error)")
-            }
-            await MainActor.run {
-                isHighlighting = false
-            }
+        guard let language else { return }
+        do {
+            let highlight = Highlight()
+            let colors: HighlightColors = scheme == .dark ? .dark(.github) : .light(.github)
+            let highlighted = try await highlight.attributedText(content, language: language, colors: colors)
+            guard !Task.isCancelled else { return }
+            self.highlightedText = highlighted
+        } catch {
+            print("Syntax highlighting failed: \(error)")
         }
     }
 }
