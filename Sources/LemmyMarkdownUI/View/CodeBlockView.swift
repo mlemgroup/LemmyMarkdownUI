@@ -9,13 +9,26 @@ import SwiftUI
 import HighlightSwift
 
 internal struct CodeBlockView: View {
+    @Environment(\.colorScheme) var colorScheme
+
     let content: String
     let language: String?
     let configuration: MarkdownConfiguration
 
-    @State private var highlightedText: AttributedString?
+    struct HighlightedText {
+        let light: AttributedString
+        let dark: AttributedString
 
-    @Environment(\.colorScheme) var colorScheme
+        subscript(_ scheme: ColorScheme) -> AttributedString {
+            switch scheme {
+            case .light: light
+            case .dark: dark
+            default: dark
+            }
+        }
+    }
+
+    @State private var highlightedText: HighlightedText?
 
     init(content: String, language: String? = nil, configuration: MarkdownConfiguration) {
         self.content = content.trimmingCharacters(in: .newlines)
@@ -34,8 +47,8 @@ internal struct CodeBlockView: View {
         }
         .background(configuration.codeBackgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .task(id: colorScheme) {
-            await performHighlighting(for: colorScheme)
+        .task {
+            await performHighlighting()
         }
     }
 
@@ -43,7 +56,7 @@ internal struct CodeBlockView: View {
     var contentView: some View {
         if let highlighted = highlightedText,
            configuration.enableSyntaxHighlighting {
-            Text(highlighted)
+            Text(highlighted[colorScheme])
                 .font(codeFont)
                 .padding(10)
         } else {
@@ -60,15 +73,16 @@ internal struct CodeBlockView: View {
         ).monospaced()
     }
 
-    func performHighlighting(for scheme: ColorScheme) async {
+    func performHighlighting() async {
         guard configuration.enableSyntaxHighlighting else { return }
         guard let language else { return }
         do {
             let highlight = Highlight()
-            let colors: HighlightColors = scheme == .dark ? .dark(.github) : .light(.github)
-            let highlighted = try await highlight.attributedText(content, language: language, colors: colors)
+            async let light = highlight.attributedText(content, language: language, colors: .light(.github))
+            async let dark = highlight.attributedText(content, language: language, colors: .dark(.github))
+            let highlightedText: HighlightedText = try await .init(light: light, dark: dark)
             guard !Task.isCancelled else { return }
-            self.highlightedText = highlighted
+            self.highlightedText = highlightedText
         } catch {
             print("Syntax highlighting failed: \(error)")
         }
