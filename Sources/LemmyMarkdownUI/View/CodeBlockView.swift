@@ -9,15 +9,26 @@ import SwiftUI
 import HighlightSwift
 
 internal struct CodeBlockView: View {
+    @Environment(\.colorScheme) var colorScheme
+
     let content: String
     let language: String?
     let configuration: MarkdownConfiguration
 
-    @State private var highlightedText: AttributedString?
-    @State private var isHighlighting = false
-    @State private var highlightTask: Task<Void, Never>?
+    struct HighlightedText {
+        let light: AttributedString
+        let dark: AttributedString
 
-    @Environment(\.colorScheme) var colorScheme
+        subscript(_ scheme: ColorScheme) -> AttributedString {
+            switch scheme {
+            case .light: light
+            case .dark: dark
+            default: dark
+            }
+        }
+    }
+
+    @State private var highlightedText: HighlightedText?
 
     init(content: String, language: String? = nil, configuration: MarkdownConfiguration) {
         self.content = content.trimmingCharacters(in: .newlines)
@@ -36,11 +47,8 @@ internal struct CodeBlockView: View {
         }
         .background(configuration.codeBackgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .task(id: colorScheme) {
+        .task {
             await performHighlighting()
-        }
-        .onDisappear {
-            highlightTask?.cancel()
         }
     }
 
@@ -48,7 +56,7 @@ internal struct CodeBlockView: View {
     var contentView: some View {
         if let highlighted = highlightedText,
            configuration.enableSyntaxHighlighting {
-            Text(highlighted)
+            Text(highlighted[colorScheme])
                 .font(codeFont)
                 .padding(10)
         } else {
@@ -67,25 +75,16 @@ internal struct CodeBlockView: View {
 
     func performHighlighting() async {
         guard configuration.enableSyntaxHighlighting else { return }
-        guard !isHighlighting else { return }
-        guard language != nil else { return }
-
-        isHighlighting = true
-        highlightTask = Task.detached {
-            do {
-                let highlight = Highlight()
-                let colors: HighlightColors = colorScheme == .dark ? .dark(.github) : .light(.github)
-
-                let highlighted = try await highlight.attributedText(content, language: language!, colors: colors)
-                await MainActor.run {
-                    self.highlightedText = highlighted
-                }
-            } catch {
-                print("Syntax highlighting failed: \(error)")
-            }
-            await MainActor.run {
-                isHighlighting = false
-            }
+        guard let language else { return }
+        do {
+            let highlight = Highlight()
+            async let light = highlight.attributedText(content, language: language, colors: .light(.github))
+            async let dark = highlight.attributedText(content, language: language, colors: .dark(.github))
+            let highlightedText: HighlightedText = try await .init(light: light, dark: dark)
+            guard !Task.isCancelled else { return }
+            self.highlightedText = highlightedText
+        } catch {
+            print("Syntax highlighting failed: \(error)")
         }
     }
 }
